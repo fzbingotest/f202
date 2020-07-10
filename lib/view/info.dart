@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fm6832/utils/const.dart';
-import 'package:fm6832/utils/myLocalizations.dart';
+import 'package:f202/utils/const.dart';
+import 'package:f202/utils/myLocalizations.dart';
 
 class InfoPage extends StatefulWidget{
   @override
@@ -12,12 +12,12 @@ class InfoPage extends StatefulWidget{
 
 
 class _InfoPageState extends State<InfoPage> {
-  static const String CHANNEL_NAME="fender.fm8932/call_native";
+  static const String CHANNEL_NAME="fender.f202/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   final List<String> _listTitle = ['Model', 'Address','Battery','Box battery','Status','Signal','Firmware','App_Version'];
   Map<String, String> _listContent =  {'Model': 'tws', 'Address': '0:0:0:0:0:0','Battery': '50','Box battery':'50',
                                     'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.4'};
-  static const EventChannel eventChannel =  const EventChannel('fender.fm8932/event_native');
+  static const EventChannel eventChannel =  const EventChannel('fender.f202/event_native');
   StreamSubscription _subscription;
   @override
   void initState() {

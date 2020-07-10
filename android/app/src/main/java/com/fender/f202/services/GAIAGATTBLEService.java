@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832.services;
+package com.fender.f202.services;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -19,15 +19,15 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import android.util.Log;
 
-import com.fender.fm6832.Consts;
-import com.fender.fm6832.Utils;
-import com.fender.fm6832.gaia.UpgradeGaiaManager;
-import com.fender.fm6832.model.gatt.GATT;
-import com.fender.fm6832.model.gatt.GATTServices;
-import com.fender.fm6832.model.gatt.GattServiceBattery;
-import com.fender.fm6832.model.gatt.GattServiceHeartRate;
-import com.fender.fm6832.receivers.BondStateReceiver;
-import com.fender.fm6832.rwcp.RWCPClient;
+import com.fender.f202.Consts;
+import com.fender.f202.Utils;
+import com.fender.f202.gaia.UpgradeGaiaManager;
+import com.fender.f202.model.gatt.GATT;
+import com.fender.f202.model.gatt.GATTServices;
+import com.fender.f202.model.gatt.GattServiceBattery;
+import com.fender.f202.model.gatt.GattServiceHeartRate;
+import com.fender.f202.receivers.BondStateReceiver;
+import com.fender.f202.rwcp.RWCPClient;
 import com.qualcomm.qti.libraries.ble.BLEService;
 import com.qualcomm.qti.libraries.ble.BLEUtils;
 import com.qualcomm.qti.libraries.ble.Characteristics;

@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832.services;
+package com.fender.f202.services;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -19,8 +19,8 @@ import androidx.annotation.NonNull;
 
 import android.util.Log;
 
-import com.fender.fm6832.Utils;
-import com.fender.fm6832.receivers.UUIDReceiver;
+import com.fender.f202.Utils;
+import com.fender.f202.receivers.UUIDReceiver;
 
 import java.io.IOException;
 import java.io.InputStream;

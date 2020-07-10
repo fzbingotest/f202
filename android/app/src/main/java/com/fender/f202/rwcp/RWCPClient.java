@@ -2,12 +2,12 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832.rwcp;
+package com.fender.f202.rwcp;
 
 import android.os.Handler;
 import android.util.Log;
 
-import com.fender.fm6832.Utils;
+import com.fender.f202.Utils;
 
 import java.util.LinkedList;
 

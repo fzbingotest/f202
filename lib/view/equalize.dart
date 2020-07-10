@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fm6832/utils/const.dart';
-import 'package:fm6832/utils/myLocalizations.dart';
+import 'package:f202/utils/const.dart';
+import 'package:f202/utils/myLocalizations.dart';
 
 
 class EqualizePage extends StatefulWidget {
@@ -26,9 +26,9 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   final List<double> _monitorList   = [-4,-3,4,1,3,6,8];
   final List<double> _maleList   = [4,2,4,1,0,-2,-5];
   final List<double> _customizeList   = [0,0,0,0,0,0,0];
-  static const String CHANNEL_NAME="fender.fm8932/call_native";
+  static const String CHANNEL_NAME="fender.f202/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.fm8932/eq_event_native');
+  static const EventChannel eventChannel =  const EventChannel('fender.f202/eq_event_native');
   StreamSubscription _subscription;
   void buildEqList()
   {

@@ -3,12 +3,12 @@
  **************************************************************************************************/
 
 
-package com.fender.fm6832.gaia;
+package com.fender.f202.gaia;
 
 import android.util.Log;
 
-import com.fender.fm6832.Consts;
-import com.fender.fm6832.rwcp.RWCP;
+import com.fender.f202.Consts;
+import com.fender.f202.rwcp.RWCP;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.gaia.GaiaException;
 import com.qualcomm.qti.libraries.gaia.packets.GaiaPacket;

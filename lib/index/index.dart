@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:fm6832/utils/const.dart';
-import 'package:fm6832/utils/myI18nWidget.dart';
-import 'package:fm6832/utils/myLocalizations.dart';
-import 'package:fm6832/utils/myLocalizationsDelegate.dart';
-import 'package:fm6832/view/settings.dart';
-import 'package:fm6832/view/equalize.dart';
-import 'package:fm6832/view/update.dart';
-import 'package:fm6832/view/info.dart';
+import 'package:f202/utils/const.dart';
+import 'package:f202/utils/myI18nWidget.dart';
+import 'package:f202/utils/myLocalizations.dart';
+import 'package:f202/utils/myLocalizationsDelegate.dart';
+import 'package:f202/view/settings.dart';
+import 'package:f202/view/equalize.dart';
+import 'package:f202/view/update.dart';
+import 'package:f202/view/info.dart';
 
 import 'navigation_icon_view.dart'; // 如果是在同一个包的路径下，可以直接使用对应的文件名
 
@@ -30,7 +30,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   List<NavigationIconView> _navigationViews;  // 底部图标按钮区域
   List<StatefulWidget> _pageList;   // 用来存放我们的图标对应的页面
   StatefulWidget _currentPage;  // 当前的显示页面
-  static const String CHANNEL_NAME="fender.fm8932/call_native";
+  static const String CHANNEL_NAME="fender.f202/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = '';
   String _address = '';
@@ -230,7 +230,9 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
 
     print('index build ~~~~~~~~~~~~~~~~~~~~~~~~' + _currentIndex.toString());
 
-    return Center(
+    return param;
+
+      /*Center(
         child: Stack(
           alignment: Alignment.center,
           //overflow: Overflow.visible,
@@ -248,6 +250,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
             ),*/
           ],
         )
-    );
+    );*/
   }
 }

@@ -3,13 +3,13 @@
  **************************************************************************************************/
 
 
-package com.fender.fm6832.gaia;
+package com.fender.f202.gaia;
 
 import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import android.util.Log;
 
-import com.fender.fm6832.Consts;
+import com.fender.f202.Consts;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.gaia.packets.GaiaPacket;
 

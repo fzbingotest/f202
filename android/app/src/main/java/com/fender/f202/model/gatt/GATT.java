@@ -2,7 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832.model.gatt;
+package com.fender.f202.model.gatt;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 

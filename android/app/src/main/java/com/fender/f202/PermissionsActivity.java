@@ -2,7 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832;
+package com.fender.f202;
 
 import android.app.Activity;
 import android.content.DialogInterface;

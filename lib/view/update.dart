@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:fm6832/utils/const.dart';
-import 'package:fm6832/utils/httpControl.dart';
-import 'package:fm6832/utils/myLocalizations.dart';
+import 'package:f202/utils/const.dart';
+import 'package:f202/utils/httpControl.dart';
+import 'package:f202/utils/myLocalizations.dart';
 import 'package:wakelock/wakelock.dart';
 
 class UpdatePage extends StatefulWidget{
@@ -28,9 +28,9 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   Color _buttonColor = Colors.white;
   //Animation<double> _animation;
   AnimationController _animationController;
-  static const String CHANNEL_NAME="fender.fm8932/call_native";
+  static const String CHANNEL_NAME="fender.f202/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.fm8932/update_event_native');
+  static const EventChannel eventChannel =  const EventChannel('fender.f202/update_event_native');
   StreamSubscription _subscription;
 
   @override

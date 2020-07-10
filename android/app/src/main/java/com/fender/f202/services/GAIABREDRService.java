@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.fm6832.services;
+package com.fender.f202.services;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -16,10 +16,10 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.fender.fm6832.Consts;
+import com.fender.f202.Consts;
 
-import com.fender.fm6832.model.gatt.GATTServices;
-import com.fender.fm6832.receivers.BondStateReceiver;
+import com.fender.f202.model.gatt.GATTServices;
+import com.fender.f202.receivers.BondStateReceiver;
 import com.qualcomm.qti.libraries.ble.BLEUtils;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
 import com.qualcomm.qti.libraries.vmupgrade.codes.ResumePoints;

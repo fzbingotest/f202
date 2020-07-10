@@ -1,4 +1,4 @@
-package com.fender.fm6832;
+package com.fender.f202;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -34,12 +34,12 @@ import java.util.Map;
 import java.util.Set;
 import java.lang.reflect.Method;
 
-import com.fender.fm6832.gaia.EqualizerGaiaManager;
-import com.fender.fm6832.gaia.InformationGaiaManager;
-import com.fender.fm6832.receivers.BluetoothStateReceiver;
-import com.fender.fm6832.services.BluetoothService;
-import com.fender.fm6832.services.GAIABREDRService;
-import com.fender.fm6832.services.GAIAGATTBLEService;
+import com.fender.f202.gaia.EqualizerGaiaManager;
+import com.fender.f202.gaia.InformationGaiaManager;
+import com.fender.f202.receivers.BluetoothStateReceiver;
+import com.fender.f202.services.BluetoothService;
+import com.fender.f202.services.GAIABREDRService;
+import com.fender.f202.services.GAIAGATTBLEService;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeError;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
@@ -57,27 +57,28 @@ public class MainActivity extends FlutterActivity
         implements BluetoothStateReceiver.BroadcastReceiverListener, InformationGaiaManager.GaiaManagerListener{
     private static final String TAG = "MainActivity";
     private boolean DEBUG = Consts.DEBUG;
-    private static final String CHANNEL= "fender.fm8932/call_native";
+    private static final String CHANNEL= "fender.f202/call_native";
     private MethodChannel methodChannel;
 
-    private static final String EVENT_CHANNEL= "fender.fm8932/event_native";
+    private static final String EVENT_CHANNEL= "fender.f202/event_native";
     private EventChannel eventChannel;
     private EventChannel.EventSink eventSink;
-    private static final String EQ_EVENT_CHANNEL= "fender.fm8932/eq_event_native";
+    private static final String EQ_EVENT_CHANNEL= "fender.f202/eq_event_native";
     private EventChannel eqEventChannel;
     private EventChannel.EventSink eqEventSink;
-    private static final String BASS_EVENT_CHANNEL= "fender.fm8932/bass_event_native";
+    private static final String BASS_EVENT_CHANNEL= "fender.f202/bass_event_native";
     private EventChannel bassEventChannel;
     private EventChannel.EventSink bassEventSink;
-    private static final String UPDATE_EVENT_CHANNEL= "fender.fm8932/update_event_native";
+    private static final String UPDATE_EVENT_CHANNEL= "fender.f202/update_event_native";
     private EventChannel updateEventChannel;
     private EventChannel.EventSink updateEventSink;
-    private static final String MAIN_EVENT_CHANNEL= "fender.fm8932/main_event_native";
+    private static final String MAIN_EVENT_CHANNEL= "fender.f202/main_event_native";
     private EventChannel mainEventChannel;
     private EventChannel.EventSink mainEventSink;
     private Map<String, String> mMap;
     private long mStartTime = 0;
     private File mFile = null;
+    private int mBatteryLevel = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,7 @@ public class MainActivity extends FlutterActivity
         mIsPaused = true;
 
         if (mService != null) {
+            rmInformationFromDevice();
             mService.removeHandler(mHandler);
             mService = null;
             unbindService(mServiceConnection);
@@ -189,6 +191,9 @@ public class MainActivity extends FlutterActivity
                         String url = call.arguments();
                         downloadFile(url, "1.bin");
                         return;
+                    }else if(call.method.equals("native_get_firmware_version")){
+                        if(isDeviceReady())
+                            mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
                     }else{
                         result.success("I don't know what you say");
                     }
@@ -310,6 +315,7 @@ public class MainActivity extends FlutterActivity
                         int battery = (int) batteryMethod.invoke(device, (Object[]) null);
                         Log.i(TAG,"Battery:"+battery);
                         //start bdr
+                        mBatteryLevel = battery;
                         start_bdr_devices(device);
                         mMap.put("Model", device.getName());
                         mMap.put("Address",device.getAddress());
@@ -354,9 +360,10 @@ public class MainActivity extends FlutterActivity
                         batteryMethod.setAccessible(true);
                         int battery = (int) batteryMethod.invoke(device, (Object[]) null);
                         Log.i(TAG,"Battery:"+battery);
+                        mBatteryLevel = battery;
                         //start bdr
-                        mMap.put("Model", "none");
-                        mMap.put("Address","none");
+                        mMap.put("Model", device.getName());
+                        mMap.put("Address",device.getAddress());
                         //getInformationFromDevice();
                         if(mainEventSink!=null)
                             mainEventSink.success(mMap);
@@ -441,10 +448,10 @@ public class MainActivity extends FlutterActivity
      * <ul>
      *     <li>{@link BluetoothService.UpgradeMessage#UPGRADE_STEP_HAS_CHANGED
      *     UPGRADE_STEP_HAS_CHANGED}: updates the step information of the VM Upgrade Dialog through the
-     *     method {@link VMUpgradeDialog#updateStep(int) updateStep}.</li>
+     *     method .</li>
      *     <li>{@link BluetoothService.UpgradeMessage#UPGRADE_UPLOAD_PROGRESS
      *     UPGRADE_UPLOAD_PROGRESS}: updates the progress bar information through the method
-     *     {@link VMUpgradeDialog#displayTransferProgress(double) displayTransferProgress}</li>
+     *     </li>
      *     <li>{@link BluetoothService.UpgradeMessage#UPGRADE_REQUEST_CONFIRMATION
      *     UPGRADE_REQUEST_CONFIRMATION}: displays a dialog to the user to ask their confirmation to continue the
      *     process.</li>
@@ -462,11 +469,12 @@ public class MainActivity extends FlutterActivity
      */
     private void onReceiveUpgradeMessage(@BluetoothService.UpgradeMessage int message, Object content) {
         StringBuilder handleMessage = new StringBuilder("Handle a message from BLE service: UPGRADE_MESSAGE, ");
-        Map<String, Integer> map = new HashMap<String,Integer>();
+        Map<String, String> map = new HashMap<String,String>();
 
         switch (message) {
             case BluetoothService.UpgradeMessage.UPGRADE_FINISHED:
-                map.put("status", 0 );
+                String status = "0";
+                map.put("status", status );
                 Log.i(TAG, " onReceiveUpgradeMessage " +  map.toString() +updateEventSink.toString());
                 mStartTime = 0;
                 if(updateEventSink != null)
@@ -496,7 +504,7 @@ public class MainActivity extends FlutterActivity
                 UpgradeError error = (UpgradeError) content;
                 mStartTime = 0;
                 manageError(error);
-                map.put("status", error.getError() );
+                map.put("status", error.getString() );
                 Log.i(TAG, " onReceiveUpgradeMessage error " +  map.toString());
                 mStartTime = 0;
                 if(updateEventSink != null)
@@ -939,7 +947,7 @@ public class MainActivity extends FlutterActivity
     @Override
     public void onGetBatteryLevel(int level) {
         Map<String, String> map = new HashMap<String,String>();
-        String text = ""+level;
+        String text = ""+mBatteryLevel;
         map.put("Battery", text );
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
         if(eventSink != null)
@@ -972,6 +980,8 @@ public class MainActivity extends FlutterActivity
         String BoxText = ""+versionPart3 ;
         Map<String, String> map = new HashMap<String,String>();
         map.put("Firmware", APPText );
+        if(updateEventSink!= null)
+            updateEventSink.success(map);
         map.put("Box battery", BoxText );
         Log.i(TAG, " onGetAPPVersion = " + map.toString());
         if(eventSink != null)
