@@ -9,6 +9,7 @@ import 'package:f202/utils/myLocalizationsDelegate.dart';
 
 
 import 'index/index.dart';
+import 'utils/const.dart';
 void main() {
   // 强制竖屏
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]).then((_){
+    Global.init();
     runApp(MyApp());
   });
 }

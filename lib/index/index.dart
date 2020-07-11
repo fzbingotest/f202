@@ -14,6 +14,7 @@ import 'package:f202/view/equalize.dart';
 import 'package:f202/view/update.dart';
 import 'package:f202/view/info.dart';
 
+import '../utils/const.dart';
 import 'navigation_icon_view.dart'; // 如果是在同一个包的路径下，可以直接使用对应的文件名
 
 // 创建一个 带有状态的 Widget Index
@@ -34,6 +35,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = '';
   String _address = '';
+  int _step = 1;
 
   @override
   void deactivate(){
@@ -65,6 +67,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
 
   @override
   void initState() {
+    //Global.init();
     super.initState();
     print(this.toString());
     WidgetsBinding.instance.addObserver(this);
@@ -228,11 +231,22 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
 
     );
 
-    print('index build ~~~~~~~~~~~~~~~~~~~~~~~~' + _currentIndex.toString());
+    print('index build ~~~~~~~~~~~~~~~~~~~~~~~~' + _currentIndex.toString()+'app init=' + Global.appGuide.toString());
+    if((Global.appGuide&(1 <<_currentIndex)) != 0)
+      return param;
+    else
+      return Listener(
+        onPointerUp: (e){
+          _step++;
+          print('`````````onPointerUp --' + _currentIndex.toString() + '_step = ' +_step.toString());
+          if(_step > 2 && _currentIndex == 0) {
+            Global.saveFirstRun(1);
+            _step = 1;
+          }
+          setState((){});
+        },
 
-    return param;
-
-      /*Center(
+    child: Center(
         child: Stack(
           alignment: Alignment.center,
           //overflow: Overflow.visible,
@@ -240,8 +254,10 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
             param,
             Positioned(
               bottom: 0,
-              child: Container( child: Text('bingo') , color: Color.fromARGB(168, 0, 0, 0), height: Global.appHeight, width: Global.appWidth,),
+              child: Container( child: Text('') , color: Color.fromARGB(168, 0, 0, 0), height: Global.appHeight, width: Global.appWidth,),
             ),
+            _getDescribeWidget(),
+            _getPointWidget(),
 
             /*Positioned(
               bottom: Global.bottomLogoHeight,
@@ -250,6 +266,74 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
             ),*/
           ],
         )
-    );*/
+      )
+      );
   }
+
+  Widget _getDescribeWidget()
+  {
+    String _text = '';
+    switch(_currentIndex)
+    {
+      case 0:
+        _text = _step==1? MyLocalizations.of(context).getText('Enhance_describe'): MyLocalizations.of(context).getText('model_describe');
+        break;
+      case 1:
+        _text = _step==1? MyLocalizations.of(context).getText('Eq_describe'): MyLocalizations.of(context).getText('EqReset_describe');
+        break;
+      case 2:
+        _text = _step==1? MyLocalizations.of(context).getText('Update_describe'): MyLocalizations.of(context).getText('Update_describe1');
+        break;
+      case 3:
+      default:
+        _text =MyLocalizations.of(context).getText('Info_describe');
+        break;
+    }
+        return Positioned(
+            bottom: Global.bottomViewHeight*_step +  Global.columnPadding*5,
+            child: Container(
+              padding: new EdgeInsets.fromLTRB( Global.columnPadding,  Global.columnPadding*5, Global.columnPadding, Global.columnPadding*5),
+              width: (Global.appWidth - Global.columnPadding*5),
+              decoration: new BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+              ),
+              child:  Text(_text, textAlign: TextAlign.center, style: Global.floatHzTextStyle,),)
+        );
+  }
+  Widget _getPointWidget()
+  {
+    if(_currentIndex == 0)
+      return _step == 1 ?
+      Positioned(
+        bottom: Global.bottomViewHeight*(_step-1),
+        left: Global.columnPadding*2,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.circular(65.0)),
+        ),
+          height: Global.bottomViewHeight, width: Global.bottomViewWidth,),
+      )
+          :
+      Positioned(
+        bottom: Global.bottomViewHeight*(_step-1) + Global.columnPadding*2,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.circular(65.0)),
+        ),
+          height: Global.bottomViewHeight, width: Global.appWidth/2,),
+      );
+    else {
+      return Positioned(
+        bottom: Global.bottomViewHeight*(_step-1),
+        left: Global.columnPadding*2 + (Global.appWidth /4)*_currentIndex,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.circular(65.0)),
+        ),
+          height: Global.bottomViewHeight, width: Global.bottomViewWidth,),
+      );
+    }
+  }
+
 }

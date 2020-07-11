@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/screenutil.dart';
 
 class Global {
   static SharedPreferences _prefs;
-  static bool firstRun;
+  static int firstRun;
   static bool _isScreenInit = false;
   static BuildContext appContext;
 
@@ -15,7 +15,7 @@ class Global {
   //初始化全局信息，会在APP启动时执行
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
-    bool _firstRun = _prefs.getBool("first_run");
+    int _firstRun = _prefs.getInt("first_run");
     if (_firstRun != null) {
       try {
         firstRun = _firstRun;
@@ -24,7 +24,9 @@ class Global {
       }
     }
     else
-      firstRun = false;
+      firstRun = 0;
+
+    print('_firstRun ' + _firstRun.toString() + ', firstRun ' + firstRun.toString());
 
     //初始化网络请求相关配置
     //Git.init();
@@ -79,6 +81,7 @@ class Global {
   static TextStyle get contentTextStyle => TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(72));
   static TextStyle get titleTextStyle1 => TextStyle(color: Colors.white, fontSize: ScreenUtil().setSp(96));
   static TextStyle get eqHzTextStyle => TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60));
+  static TextStyle get floatHzTextStyle => TextStyle(color: Colors.black87, fontSize: ScreenUtil().setSp(72), fontWeight: FontWeight.normal, decoration: TextDecoration.none);
   //update view
   static double get updateImgHeight => ScreenUtil().setHeight(916);
   static double get updateImgWidth => ScreenUtil().setWidth(876);
@@ -91,7 +94,11 @@ class Global {
 
 
   static double get infoItemTitleWidth => ScreenUtil().setWidth(460);
+
+  static int get appGuide => firstRun;
   // 持久化Profile信息
-  static saveFirstRun(bool val) =>
-      _prefs.setBool("first_run", val);
+  static void saveFirstRun(int val) {
+    _prefs.setInt("first_run", val);
+    firstRun = val;
+  }
 }
