@@ -126,8 +126,12 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   void dispose() {
     _tabController.removeListener(onTabChange);
     _tabController.dispose();
-    if(_subscription != null){
-      _subscription.cancel();
+    try {
+      if (_subscription != null) {
+        _subscription.cancel();
+      }
+    } on PlatformException catch (e){
+      print("failed to get devices "+e.toString());
     }
     super.dispose();
   }
@@ -265,20 +269,126 @@ class _EqualizeViewState extends State<EqualizeView> {
   }
 
   //List<Widget> _listEqItem;
-  void _buildEqView() {
+  void _buildEqView() { }
+}
+
+class EqualizePageGuide extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _EqualizePageStateGuide();
+}
+
+class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTickerProviderStateMixin  {
+  TabController _tabController;
+  List<Widget> _eqList;
+  Color _resetColor = Colors.white;
+  final List<double> _fenderList     = [7,3,2,2,1,4,11];
+  final List<double> _seztoList   = [4,0,4,8,8,4,7];
+  final List<double> _electronicList = [9,3,5,-6,-4,5,3];
+  final List<double> _classicList    = [-6,-1,-4,2,-3,0,9];
+  final List<double> _femaleList    = [-2,-2,5,4,5,-2,-5];
+  final List<double> _monitorList   = [-4,-3,4,1,3,6,8];
+  final List<double> _maleList   = [4,2,4,1,0,-2,-5];
+  final List<double> _customizeList   = [0,0,0,0,0,0,0];
+  void buildEqList()
+  {
+    _eqList =  <StatefulWidget>[
+      new EqualizeView(type: 'Normal', listGain: _customizeList),
+      new EqualizeView(type: 'Fender', listGain: _fenderList),
+      new EqualizeView(type: 'Sezto', listGain: _seztoList),
+      new EqualizeView(type: 'Electronic', listGain: _electronicList),
+      new EqualizeView(type: 'Classical', listGain: _classicList),
+      new EqualizeView(type: 'Female Vocals', listGain: _femaleList),
+      new EqualizeView(type: 'Monitor', listGain: _monitorList),
+      new EqualizeView(type: 'Male Vocals', listGain: _maleList),
+//      new EqualizeView(type: 'Customize', listGain: _customizeList),
+    ];
+  }
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this,length: 8);
+    _tabController.addListener(onTabChange);
+  }
+
+  void onTabChange(){
+    print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString());
 
   }
-   /* return Container(
-      // height: ScreenUtil().setHeight(1550),
-      child: Row(
-        children: <Widget>[
-          Text(title),
-          SizedBox( width: 12.0 ),
-          Expanded(
-            child: CupertinoSlider(value: value,min: -15,max: 15,thumbColor: Colors.redAccent,activeColor: Colors.grey, divisions: 1),
-          )
-        ],
+
+  @override
+  void dispose() {
+    _tabController.removeListener(onTabChange);
+    _tabController.dispose();
+     super.dispose();
+  }
+
+  Widget _buildTabItem(String title)
+  {
+    return Tab(
+      child: Container(
+        width: Global.tabImgWidth,//ScreenUtil().setWidth(350),
+        height: Global.tabImgHeight,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          //border: Border.all(color: Colors.redAccent, width: 1)
+        ),
+        child: Align(
+          alignment: Alignment.center,
+          child: Text(title, style:Global.contentTextStyle),
+        ),
       ),
-      //color: Colors.red[400],
-    );*/
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    buildEqList();
+    return new Container(
+      padding: EdgeInsets.all(Global.eqBodyPadding),
+      child: Center(
+        child:  Column(
+          children: <Widget>[
+            Container(
+              height: Global.tabHeight,
+              child: TabBar(
+                unselectedLabelColor: Colors.grey,
+                //indicatorSize: TabBarIndicatorSize.label,
+                indicatorPadding: EdgeInsets.only(left: 30, right: 30),
+                indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.blueGrey),
+                isScrollable:true,
+                tabs: <Widget>[
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Normal')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Fender')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Electronic')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Classical')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Female_Vocals')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Monitor')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Male_Vocals')),
+                  //_buildTabItem("Customize"),
+                ],
+                controller: _tabController,  // 记得要带上tabController
+              ),
+            ),
+            Container(
+              alignment: Alignment.topRight,
+              height: Global.resetHeight,
+              child: new IconButton(icon: new ImageIcon(AssetImage('assets/images/reset.png'),color: _resetColor), onPressed: (){}
+                ),
+            ),
+            Container(
+              height: Global.eqListHeight,
+              child: TabBarView(
+                physics: new NeverScrollableScrollPhysics(),
+                controller: _tabController,
+                children: _eqList,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

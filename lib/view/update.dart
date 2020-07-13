@@ -59,8 +59,12 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   @override
   void dispose() {
     _animationController.dispose();
-    if(_subscription != null){
-      _subscription.cancel();
+    try {
+      if (_subscription != null) {
+        _subscription.cancel();
+      }
+    } on PlatformException catch (e){
+    print("failed to get devices "+e.toString());
     }
     super.dispose();
   }
@@ -256,7 +260,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               highlightColor: Colors.green[700],
               //colorBrightness: Brightness.dark,
               //splashColor: Colors.grey,
-              child: Text(_updateInfo, style: Global.contentTextStyle),
+              child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
                 if(!_isUpdating && _currentVersion.compareTo(_currentVersion)!=0)
@@ -269,6 +273,95 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         ),
         ],
       ),
+      ),
+    );
+  }
+}
+
+
+class UpdatePageGuide extends StatefulWidget{
+  @override
+  State<StatefulWidget> createState() => new _UpdatePageStateGuide();
+}
+
+class _UpdatePageStateGuide extends State<UpdatePageGuide> {
+  String _version;
+  String _updateInfo;
+  Color _buttonColor = Colors.white;
+
+  @override
+  void initState() {
+    super.initState();
+    print(this.toString());
+    _version = MyLocalizations.of(Global.context).getText('unknown');
+    _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
+  }
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  var _stack;
+  Stack _buildStack() {
+    return new Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Image.asset(
+            'assets/images/update.png', height: Global.updateImgHeight,
+            width: Global.updateImgWidth),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print("update" + context.toString());
+    _stack = _buildStack();
+    //_step = 0.0;
+    return new Container(
+      padding: EdgeInsets.all(Global.eqBodyPadding),
+      child: Center(
+        child:  Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Text(
+                  MyLocalizations.of(Global.context).getText('latest_firmware'),
+                  style: Global.contentTextStyle,
+                ),
+                Text(
+                  _version,
+                  style: Global.contentTextStyle,
+                ),
+              ],
+            ),
+
+            Container(
+              height: Global.updateBodyHeight,
+              child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+              /*decoration: BoxDecoration(
+              color: Colors.red,
+            ),*/
+              //color: Colors.red[400],
+            ),
+
+            SizedBox(
+              //width: 50,
+                height: Global.updateIconHeight,
+                child: FlatButton(
+                  color: _buttonColor,
+                  highlightColor: Colors.green[700],
+                  //colorBrightness: Brightness.dark,
+                  //splashColor: Colors.grey,
+                  child: Text(_updateInfo, style: Global.floatHzTextStyle),
+                  shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                  onPressed: () {
+
+                  },
+                )
+            ),
+          ],
+        ),
       ),
     );
   }

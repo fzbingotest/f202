@@ -21,7 +21,7 @@ class  MyLocalizations {
       'unknown':'checking',
       'update_failed': 'Update failed\nPlease try again later!',
       'Done': 'Done',
-      'update_ok': 'Update finished.\nPlease connect it again!',
+      'update_ok': 'Update success.\nPlease connect it again!',
       'Audio_Enhance': 'Audio Enhance',
       'enhance_content': 'Audio enhance function allows fine tuning and power boosting of music playback',
       'Normal': 'Normal',

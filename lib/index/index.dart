@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+//import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:f202/utils/const.dart';
-import 'package:f202/utils/myI18nWidget.dart';
+//import 'package:f202/utils/myI18nWidget.dart';
 import 'package:f202/utils/myLocalizations.dart';
-import 'package:f202/utils/myLocalizationsDelegate.dart';
+//import 'package:f202/utils/myLocalizationsDelegate.dart';
 import 'package:f202/view/settings.dart';
 import 'package:f202/view/equalize.dart';
 import 'package:f202/view/update.dart';
@@ -175,7 +175,44 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   Widget build(BuildContext context) {
     Global.initScreen(context);
     createPage();
-    print("index build + " + context.toString());
+
+    print('index build ~~' + _currentIndex.toString()+'app init=' + Global.appGuide.toString() + 'step=' + _step.toString());
+    if((Global.appGuide&(1 <<_currentIndex)) != 0)
+      return _getMainUI();
+    else
+      return Listener(
+        onPointerUp: (e){
+          _step++;
+          print('`````````onPointerUp --' + _currentIndex.toString() + ' _step = ' +_step.toString());
+          if((_step > 2 && _currentIndex  <= 1) || (_step >3 && _currentIndex  == 2) || (_step >1 && _currentIndex  == 3)) {
+            Global.saveFirstRun(Global.appGuide|(1<< _currentIndex));
+            _step = 1;
+          }
+
+          setState((){});
+        },
+
+    child: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          //overflow: Overflow.visible,
+          children: <Widget>[
+            _getGuideUI(),
+            Positioned(
+              bottom: 0,
+              child: Container( child: Text('') , color: Color.fromARGB(168, 0, 0, 0), height: Global.appHeight, width: Global.appWidth,),
+            ),
+            _getDescribeWidget(),
+            _getPointWidget(),
+
+          ],
+        )
+      )
+      );
+  }
+
+  Widget _getMainUI()
+  {
     // 声明定义一个 底部导航的工具栏
     final BottomNavigationBar bottomNavigationBar = new BottomNavigationBar(
       items: _navigationViews
@@ -193,14 +230,13 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       },
     );
 
-    Widget param =  new MaterialApp(
-
+    return new MaterialApp(
       home: new Scaffold(
         appBar: new AppBar(
           //title: Text(MyLocalizations.of(Global.context).testText),
           bottom: PreferredSize(
             child: Image.asset('assets/images/logo.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
-              preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
+            preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
           ),
         ),
         body: new Center(
@@ -230,67 +266,132 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       ),
 
     );
+  }
 
-    print('index build ~~~~~~~~~~~~~~~~~~~~~~~~' + _currentIndex.toString()+'app init=' + Global.appGuide.toString());
-    if((Global.appGuide&(1 <<_currentIndex)) != 0)
-      return param;
-    else
-      return Listener(
-        onPointerUp: (e){
-          _step++;
-          print('`````````onPointerUp --' + _currentIndex.toString() + '_step = ' +_step.toString());
-          if(_step > 2 && _currentIndex == 0) {
-            Global.saveFirstRun(1);
-            _step = 1;
-          }
-          setState((){});
-        },
+  Widget _getGuideUI()
+  {
+    // 声明定义一个 底部导航的工具栏
+    final BottomNavigationBar bottomNavigationBar = new BottomNavigationBar(
+      items: _navigationViews
+          .map((NavigationIconView navigationIconView) => navigationIconView.item)
+          .toList(),  // 添加 icon 按钮
+      currentIndex: _currentIndex,  // 当前点击的索引值
+      type: BottomNavigationBarType.fixed,    // 设置底部导航工具栏的类型：fixed 固定
+      onTap: (int index){
+      },
+    );
+    Widget _myWidget;
+    switch(_currentIndex){
+      case 0:
+        _myWidget = new ConfigsPageGuide();
+        break;
+      case 1:
+        _myWidget = new EqualizePageGuide();
+        break;
+      case 2:
+        _myWidget = new UpdatePageGuide();
+        break;
+      case 3:
+      default:
+        _myWidget = new InfoPageGuide();
+        break;
+    }
 
-    child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          //overflow: Overflow.visible,
-          children: <Widget>[
-            param,
-            Positioned(
-              bottom: 0,
-              child: Container( child: Text('') , color: Color.fromARGB(168, 0, 0, 0), height: Global.appHeight, width: Global.appWidth,),
-            ),
-            _getDescribeWidget(),
-            _getPointWidget(),
+    return new MaterialApp(
+      home: new Scaffold(
+        appBar: new AppBar(
+          //title: Text(MyLocalizations.of(Global.context).testText),
+          bottom: PreferredSize(
+            child: Image.asset('assets/images/logo.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
+            preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
+          ),
+        ),
+        body: new Center(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  height: Global.appBodyHeight,
+                  child: _myWidget,   // 动态的展示我们当前的页面
+                  //color: Colors.red[400],
+                ),
 
-            /*Positioned(
-              bottom: Global.bottomLogoHeight,
-              //left: 100,
-              child: Text('I am bingo for test',style: Global.titleTextStyle1),
-            ),*/
-          ],
-        )
-      )
-      );
+                Text(_model, style: Global.titleTextStyle1/*TextStyle(color: Colors.white, fontSize: 20)*/)
+              ],
+            )
+        ),
+        bottomNavigationBar: bottomNavigationBar,   // 底部工具栏
+
+      ),
+      theme: ThemeData(
+        primaryColor: Color.fromARGB(255,52,52,52),
+        canvasColor: Color.fromARGB(255,52,52,52),
+        brightness: Brightness.dark,
+        // This makes the visual density adapt to the platform that you run
+        // the app on. For desktop platforms, the controls will be smaller and
+        // closer together (more dense) than on mobile platforms.
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+
+    );
   }
 
   Widget _getDescribeWidget()
   {
     String _text = '';
+    double _bottom = 0.0;
     switch(_currentIndex)
     {
       case 0:
         _text = _step==1? MyLocalizations.of(context).getText('Enhance_describe'): MyLocalizations.of(context).getText('model_describe');
+        _bottom = Global.bottomViewHeight*_step +  Global.columnPadding*5;
         break;
       case 1:
-        _text = _step==1? MyLocalizations.of(context).getText('Eq_describe'): MyLocalizations.of(context).getText('EqReset_describe');
+        if( _step==1) {
+          _text = MyLocalizations.of(context).getText('Eq_describe');
+          _bottom = (Global.bottomViewHeight * _step + Global.columnPadding * 5);
+        }
+        else {
+          return Positioned(
+              top: Global.bottomLogoHeight + Global.bottomViewHeight,
+              child: Container(
+                padding: new EdgeInsets.fromLTRB( Global.columnPadding,  Global.columnPadding*5, Global.columnPadding, Global.columnPadding*5),
+                width: (Global.appWidth - Global.columnPadding*5),
+                decoration: new BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                ),
+                child:  Text(MyLocalizations.of(context).getText('EqReset_describe'), textAlign: TextAlign.center, style: Global.floatHzTextStyle,),)
+          );
+        }
         break;
       case 2:
-        _text = _step==1? MyLocalizations.of(context).getText('Update_describe'): MyLocalizations.of(context).getText('Update_describe1');
+        if(_step == 1) {
+          _text = MyLocalizations.of(context).getText('Update_describe');
+          _bottom = Global.bottomViewHeight * _step + Global.columnPadding * 5;
+        }
+        else{
+          return Positioned(
+              bottom: Global.bottomViewHeight*4.5,
+              child: Container(
+                padding: new EdgeInsets.fromLTRB( Global.columnPadding,  Global.columnPadding*5, Global.columnPadding, Global.columnPadding*5),
+                width: (Global.appWidth - Global.columnPadding*5),
+                decoration: new BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                ),
+                child:  Text(
+                  MyLocalizations.of(context).getText(_step == 2? 'Update_describe1': 'Update_describe2') , textAlign: TextAlign.center, style: Global.floatHzTextStyle,),)
+          );
+        }
         break;
       case 3:
       default:
         _text =MyLocalizations.of(context).getText('Info_describe');
+        _bottom = Global.bottomViewHeight*_step +  Global.columnPadding*5;
         break;
     }
         return Positioned(
-            bottom: Global.bottomViewHeight*_step +  Global.columnPadding*5,
+            bottom: _bottom,
             child: Container(
               padding: new EdgeInsets.fromLTRB( Global.columnPadding,  Global.columnPadding*5, Global.columnPadding, Global.columnPadding*5),
               width: (Global.appWidth - Global.columnPadding*5),
@@ -301,6 +402,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
               child:  Text(_text, textAlign: TextAlign.center, style: Global.floatHzTextStyle,),)
         );
   }
+
   Widget _getPointWidget()
   {
     if(_currentIndex == 0)
@@ -323,15 +425,63 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
         ),
           height: Global.bottomViewHeight, width: Global.appWidth/2,),
       );
+    else if(_currentIndex == 1)
+    {
+      return _step == 1 ?
+      Positioned(
+        bottom: Global.bottomViewHeight*(_step-1),
+        left: Global.columnPadding*2+ (Global.appWidth /4)*_currentIndex,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.circular(65.0)),
+        ),
+          height: Global.bottomViewHeight, width: Global.bottomViewWidth,),
+      )
+          :
+      Positioned(
+        top: Global.bottomLogoHeight + Global.bottomViewHeight + Global.eqBodyPadding + Global.columnPadding*3 + Global.tabHeight,
+        right: Global.eqBodyPadding + Global.columnPadding,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.circular(45.0)),
+        ),
+          height: Global.resetHeight, width: Global.resetHeight),
+      );
+    }
+    else if(_currentIndex == 2)
+    {
+      return _step == 1 ?
+      Positioned(
+        bottom: Global.bottomViewHeight*(_step-1),
+        left: Global.columnPadding*2 + (Global.appWidth /4)*_currentIndex,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.elliptical(Global.bottomViewWidth,  Global.bottomViewHeight)),
+        ),
+          height: Global.bottomViewHeight, width: Global.bottomViewWidth,
+        ),
+      )
+          :
+      Positioned(
+        top: Global.bottomLogoHeight + Global.bottomViewHeight + Global.eqBodyPadding + Global.columnPadding*6+ Global.updateBodyHeight,
+        child: Container( child: Text('') , decoration: new BoxDecoration(
+          color: Color.fromARGB(55, 128, 128, 128),
+          borderRadius: BorderRadius.all(Radius.elliptical( Global.appWidth*4/5,   Global.updateIconHeight*1.5)),
+        ),
+          height: Global.updateIconHeight*1.5, width: Global.appWidth*4/5,
+        ),
+      );
+    }
     else {
       return Positioned(
         bottom: Global.bottomViewHeight*(_step-1),
         left: Global.columnPadding*2 + (Global.appWidth /4)*_currentIndex,
         child: Container( child: Text('') , decoration: new BoxDecoration(
           color: Color.fromARGB(55, 128, 128, 128),
-          borderRadius: BorderRadius.all(Radius.circular(65.0)),
+          borderRadius: BorderRadius.all(Radius.elliptical(Global.bottomViewWidth,  Global.bottomViewHeight)),
         ),
-          height: Global.bottomViewHeight, width: Global.bottomViewWidth,),
+         height: Global.bottomViewHeight, width: Global.bottomViewWidth,
+        ),
       );
     }
   }
