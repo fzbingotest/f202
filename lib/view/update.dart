@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:f202/utils/const.dart';
-import 'package:f202/utils/httpControl.dart';
-import 'package:f202/utils/myLocalizations.dart';
+import 'package:Tour/utils/const.dart';
+import 'package:Tour/utils/httpControl.dart';
+import 'package:Tour/utils/myLocalizations.dart';
 import 'package:wakelock/wakelock.dart';
 
 class UpdatePage extends StatefulWidget{
@@ -28,9 +28,9 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   Color _buttonColor = Colors.white;
   //Animation<double> _animation;
   AnimationController _animationController;
-  static const String CHANNEL_NAME="fender.f202/call_native";
+  static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.f202/update_event_native');
+  static const EventChannel eventChannel =  const EventChannel('fender.Tour/update_event_native');
   StreamSubscription _subscription;
 
   @override
@@ -134,6 +134,16 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     }
   }
 
+  Future<Null> _updateConfirm() async {
+    bool delete = await _showUpdateConfirmDialog();
+    if (delete == null) {
+      print("NO");
+    } else {
+      print("Yes");
+      _tryUpgrade();
+    }
+  }
+
   void _showToast(){
     Fluttertoast.cancel();
     Fluttertoast.showToast(
@@ -160,20 +170,20 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     );
   }
 
-  // 弹出对话框
+  // pop up dialog
   Future<bool> _showConnectBtConfirmDialog() {
     return showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text(MyLocalizations.of(context).getText('Done')),
           content: Text(MyLocalizations.of(context).getText('update_ok')),
           actions: <Widget>[
-            FlatButton(
+            CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('No')),
               onPressed: () => Navigator.of(context).pop(), // 关闭对话框
             ),
-            FlatButton(
+            CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('OK')),
               onPressed: () {
                 //关闭对话框并返回true
@@ -185,6 +195,33 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       },
     );
   }
+
+  Future<bool> _showUpdateConfirmDialog() {
+    //print("index build + " + context.toString());
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(MyLocalizations.of(context).getText('Warning')),
+          content: Text(MyLocalizations.of(context).getText('Update_confirm')),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text(MyLocalizations.of(context).getText('Cancel')),
+              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+            ),
+            CupertinoDialogAction(
+              child: Text(MyLocalizations.of(context).getText('Update')),
+              onPressed: () {
+                //关闭对话框并返回true
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   var _stack;
   Stack _buildStack() {
     return new Stack(
@@ -263,8 +300,8 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_isUpdating && _currentVersion.compareTo(_currentVersion)!=0)
-                  _tryUpgrade();
+                if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
+                  _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();
                 //_connectDevice();

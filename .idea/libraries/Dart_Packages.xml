@@ -12,7 +12,7 @@
         <entry key="analyzer">
           <value>
             <list>
-              <option value="C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/analyzer-0.39.12/lib" />
+              <option value="C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/analyzer-0.39.13/lib" />
             </list>
           </value>
         </entry>
@@ -440,7 +440,7 @@
     </properties>
     <CLASSES>
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/_fe_analyzer_shared-5.0.0/lib" />
-      <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/analyzer-0.39.12/lib" />
+      <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/analyzer-0.39.13/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/archive-2.0.13/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/args-1.6.0/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.flutter-io.cn/async-2.4.1/lib" />

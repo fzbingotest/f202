@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:f202/utils/const.dart';
-import 'package:f202/utils/myLocalizations.dart';
+import 'package:Tour/utils/const.dart';
+import 'package:Tour/utils/myLocalizations.dart';
 //import 'package:flutter_screenutil/screenutil.dart';
 class ConfigsPage extends StatefulWidget{
   @override
@@ -13,9 +13,9 @@ class ConfigsPage extends StatefulWidget{
 
 class _ConfigsPageState extends State<ConfigsPage> {
   bool check = false;
-  static const String CHANNEL_NAME="fender.f202/call_native";
+  static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.f202/bass_event_native');
+  static const EventChannel eventChannel =  const EventChannel('fender.Tour/bass_event_native');
   StreamSubscription _subscription;
   @override
   void initState() {

@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 //import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:f202/utils/const.dart';
-//import 'package:f202/utils/myI18nWidget.dart';
-import 'package:f202/utils/myLocalizations.dart';
-//import 'package:f202/utils/myLocalizationsDelegate.dart';
-import 'package:f202/view/settings.dart';
-import 'package:f202/view/equalize.dart';
-import 'package:f202/view/update.dart';
-import 'package:f202/view/info.dart';
+import 'package:Tour/utils/const.dart';
+//import 'package:Tour/utils/myI18nWidget.dart';
+import 'package:Tour/utils/myLocalizations.dart';
+//import 'package:Tour/utils/myLocalizationsDelegate.dart';
+import 'package:Tour/view/settings.dart';
+import 'package:Tour/view/equalize.dart';
+import 'package:Tour/view/update.dart';
+import 'package:Tour/view/info.dart';
 
 import '../utils/const.dart';
 import 'navigation_icon_view.dart'; // 如果是在同一个包的路径下，可以直接使用对应的文件名
@@ -31,7 +31,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   List<NavigationIconView> _navigationViews;  // 底部图标按钮区域
   List<StatefulWidget> _pageList;   // 用来存放我们的图标对应的页面
   StatefulWidget _currentPage;  // 当前的显示页面
-  static const String CHANNEL_NAME="fender.f202/call_native";
+  static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = '';
   String _address = '';
@@ -50,7 +50,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       // went to Background
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.paused');
     }
-    if (state == AppLifecycleState.resumed) {
+    else if (state == AppLifecycleState.resumed) {
       // came back to Foreground
       _getDevice();
       setState((){});
@@ -72,8 +72,8 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     print(this.toString());
     WidgetsBinding.instance.addObserver(this);
     _getDevice();
-    setState(() {
-    });
+    /*setState(() {
+    });*/
   }
 
   Future<Null> _getDevice() async {
@@ -90,7 +90,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
         //TODO connect devices
         _connectDevice();
       }
-
+      setState((){});
     } on PlatformException catch (e) {
       print("failed to get devices "+e.toString());
     }
@@ -103,8 +103,8 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       exit(0);
     } else {
       print("Yes");
-
       platform.invokeMethod('native_go_to_setting');
+      _getDevice();
     }
   }
 
@@ -188,7 +188,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
             Global.saveFirstRun(Global.appGuide|(1<< _currentIndex));
             _step = 1;
           }
-
           setState((){});
         },
 

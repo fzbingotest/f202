@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:f202/utils/const.dart';
-import 'package:f202/utils/myI18nWidget.dart';
-import 'package:f202/utils/myLocalizations.dart';
-import 'package:f202/utils/myLocalizationsDelegate.dart';
+import 'package:Tour/utils/const.dart';
+import 'package:Tour/utils/myI18nWidget.dart';
+import 'package:Tour/utils/myLocalizations.dart';
+import 'package:Tour/utils/myLocalizationsDelegate.dart';
 
 
 import 'index/index.dart';
@@ -17,8 +17,8 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]).then((_){
-    Global.init();
-    runApp(MyApp());
+    Global.init().then((value) => runApp(MyApp()));
+
   });
 }
 GlobalKey<MyI18nWidgetState> myI18nWidgetStateKey=GlobalKey<MyI18nWidgetState>();

@@ -95,7 +95,7 @@ class Global {
 
   static double get infoItemTitleWidth => ScreenUtil().setWidth(460);
 
-  static int get appGuide => firstRun;
+  static int get appGuide => (firstRun!=null? firstRun: 0);
   // 持久化Profile信息
   static void saveFirstRun(int val) {
     _prefs.setInt("first_run", val);
