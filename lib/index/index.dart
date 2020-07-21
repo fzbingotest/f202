@@ -33,7 +33,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   StatefulWidget _currentPage;  // 当前的显示页面
   static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  String _model = '';
+  String _model = 'none';
   String _address = '';
   int _step = 1;
 
@@ -82,13 +82,13 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       Map<String, String> res = new Map<String, String>.from(result);
       _model = res['Model'];
       _address = res['Address'];
-      if(!_model.contains('F202') ) {
+      if(_model.contains('none') ) {
         print("no device connected");
 //        print("~~" + MyLocalizations.of(Global.context).toString() + "~~"+Global.context.toString());
 //        print("adb@@@@  "+ MyLocalizations.of(Global.context).testText);
         //platform.invokeMethod('native_go_to_setting');
         //TODO connect devices
-        _connectDevice();
+        //_connectDevice();
       }
       setState((){});
     } on PlatformException catch (e) {

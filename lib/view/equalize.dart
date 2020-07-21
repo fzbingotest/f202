@@ -44,30 +44,27 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
 //      new EqualizeView(type: 'Customize', listGain: _customizeList),
     ];
   }
+
   void _getPreset() {
     try {
-      //var result = platform.invokeMethod('native_get_information');
-      //Map<String, String> res = new Map<String, String>.from(result);
-      platform.invokeMethod('native_get_current_preset');
+       platform.invokeMethod('native_get_current_preset');
     } on PlatformException catch (e) {
       print("failed to _getPreset "+e.toString());
     }
     //_listContent['Model'] = _result;
   }
+
   void _getPresetActive() {
     try {
-      //var result = platform.invokeMethod('native_get_information');
-      //Map<String, String> res = new Map<String, String>.from(result);
       platform.invokeMethod('native_get_preset_active');
     } on PlatformException catch (e) {
       print("failed to _getPresetActive "+e.toString());
     }
     //_listContent['Model'] = _result;
   }
+
   void _setPreset(int bank) {
     try {
-      //var result = platform.invokeMethod('native_get_information');
-      //Map<String, String> res = new Map<String, String>.from(result);
       platform.invokeMethod('native_set_preset', bank);
       print("_setPreset " +bank.toString());
     } on PlatformException catch (e) {
@@ -78,9 +75,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
 
   void _setPresetActive(bool active) {
     try {
-      //var result = platform.invokeMethod('native_get_information');
-      //Map<String, String> res = new Map<String, String>.from(result);
-      platform.invokeMethod('native_set_preset_active', active);
+       platform.invokeMethod('native_set_preset_active', active);
       print("_setPresetActive " +active.toString());
       _presetActive = active;
       _resetColor = _presetActive?Colors.red:Colors.white;
@@ -92,7 +87,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     } on PlatformException catch (e) {
       print("failed to _setPresetActive "+e.toString());
     }
-    //_listContent['Model'] = _result;
+
   }
   @override
   void initState() {
@@ -118,8 +113,35 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       if(!_presetActive)
         _setPresetActive(true);
       _setPreset(_tabController.index-1);
+      if(_preset == 2){
+        _getCustomEq();
+      }
     }
+  }
 
+  void _getCustomEq(){
+    try {
+      //var result = platform.invokeMethod('native_get_information');
+      //Map<String, String> res = new Map<String, String>.from(result);
+      platform.invokeMethod('native_get_custom_eq');
+      print("_getCustomEq ");
+    } on PlatformException catch (e) {
+      print("failed to _getCustomEq "+e.toString());
+    }
+  }
+
+  static void setCustomEq(int band, int gain){
+    try {
+      //var result = platform.invokeMethod('native_get_information');
+      //Map<String, String> res = new Map<String, String>.from(result);
+      List args = new List();
+      args.add(band);
+      args.add(gain);
+      platform.invokeMethod('native_set_custom_eq', args);
+      print("setCustomEq ");
+    } on PlatformException catch (e) {
+      print("failed to setCustomEq "+e.toString());
+    }
   }
 
   @override
@@ -145,7 +167,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       _tabController.animateTo(_preset+1);
       setState(() {});
     }
-    if(res['key'] == 1)
+    else if(res['key'] == 1)
     {
       _presetActive = res['value']==1?true:false;
       if(_presetActive)
@@ -153,6 +175,18 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       else {
         _tabController.animateTo(0);
         _resetColor = Colors.white;
+      }
+      setState(() {});
+    }
+    else if(res['key'] == 7)
+    {
+      String key = 'band';
+      String key1 = '';
+      for(int i= 0; i<7; i++)
+      {
+        key1 = key+i.toString();
+        if(res[key1] != null)
+          _seztoList[i] = res[key1].toDouble();
       }
       setState(() {});
     }
@@ -258,8 +292,23 @@ class _EqualizeViewState extends State<EqualizeView> {
                 SizedBox(child: Text(_listTitle[f], style: Global.eqHzTextStyle,), width: Global.eqItemTitleWidth),
                   SizedBox( width: Global.columnPadding ),
                   Expanded(
-                    child: CupertinoSlider(value: widget.listGain[f],min: -12,max: 12,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 1,
-                        onChanged: (double value) { }
+                    child: CupertinoSlider(value: widget.listGain[f],min: -12,max: 12,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
+                        onChanged: (double value) {
+                          if(widget.type.contains('Sezto')) {
+                            widget.listGain[f] = value;
+                            setState(() {
+
+                            });
+                          }
+                        },
+
+                        onChangeEnd: (double newValue) {
+                          if(widget.type.contains('Sezto')) {
+                            _EqualizePageState.setCustomEq(f, newValue.toInt());
+                            print('Ended change on $newValue');
+                          }
+
+                        },
                         ),
                   )
                 ],

@@ -11,7 +11,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+//import android.os.Environment;
 import android.os.SystemClock;
 import android.provider.Settings;
 
@@ -29,12 +29,14 @@ import android.util.Log;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.lang.reflect.Method;
 
-import com.fender.Tour.gaia.EqualizerGaiaManager;
 import com.fender.Tour.gaia.InformationGaiaManager;
 import com.fender.Tour.receivers.BluetoothStateReceiver;
 import com.fender.Tour.services.BluetoothService;
@@ -44,13 +46,13 @@ import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeError;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
 import com.qualcomm.qti.libraries.vmupgrade.codes.ResumePoints;
-import com.qualcomm.qti.libraries.vmupgrade.codes.ReturnCodes;
 
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 
 public class MainActivity extends FlutterActivity
@@ -133,7 +135,7 @@ public class MainActivity extends FlutterActivity
     }
 
     @Override
-    public void configureFlutterEngine(FlutterEngine flutterEngine){
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine){
         GeneratedPluginRegistrant.registerWith(flutterEngine);
 
         //
@@ -141,61 +143,85 @@ public class MainActivity extends FlutterActivity
         methodChannel.setMethodCallHandler(
             new MethodChannel.MethodCallHandler() {
                 @Override
-                public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
                     String res = "Success";
-                    if(call.method.equals("call_native_method")){
-                        int param = call.arguments();
-                        res = "I am bingo from android"+param;
-                        if(this!= null){
-                            Log.i(TAG,"mGaiaManager");
-                            mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
+                    switch (call.method) {
+                        case "call_native_method":
+                            int param = call.arguments();
+                            res = "I am bingo from android" + param;
+                            Log.i(TAG, "mGaiaManager");
+                            //mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
+
+                            result.success(res);
+                            break;
+                        case "native_get_bt_device":
+                            getConnectedBtDevice(result);
+                            break;
+                        case "native_get_information":
+                            getInformationFromDevice();
+                            result.success(mMap);
+                            break;
+                        case "native_get_current_device":
+                            getConnectedBtDevice(result);
+                            break;
+                        case "native_get_current_preset":
+                            if (isDeviceReady())
+                                mGaiaManager.getPreset();
+                            result.success(res);
+                            break;
+                        case "native_set_preset":
+                            int preset = call.arguments();
+                            if (isDeviceReady())
+                                mGaiaManager.setPreset(preset);
+
+                            break;
+                        case "native_set_preset_active": {
+                            boolean active = call.arguments();
+                            if (isDeviceReady())
+                                mGaiaManager.setActivationState(InformationGaiaManager.Controls.PRESETS, active);
+
+                            break;
                         }
+                        case "native_get_custom_eq":
+                            if (isDeviceReady())
+                                mGaiaManager.getCustomEqParams();
+                            break;
+                        case "native_set_custom_eq":
+                            ArrayList<Integer> args = call.arguments();
+                            Log.i(TAG, "native_set_custom_eq " + args.toString());
+                            if (isDeviceReady())
+                                mGaiaManager.setCustomEqGain(args.get(0), args.get(1));
 
-                        result.success(res);
-                    }else if(call.method.equals("native_get_bt_device")){
-                        getConnectedBtDevice(result);
-                        return;
-                    }else if(call.method.equals("native_get_information")){
-                        getInformationFromDevice();
-                        result.success(mMap);
-                    }else if(call.method.equals("native_get_current_device")){
-                        getConnectedBtDevice(result);
-                    }else if(call.method.equals("native_get_current_preset")){
-                        if(isDeviceReady())
-                            mGaiaManager.getPreset();
-                        result.success(res);
-                    }else if(call.method.equals("native_set_preset")){
-                        int preset = call.arguments();
-                        if(isDeviceReady())
-                            mGaiaManager.setPreset(preset);
+                            break;
+                        case "native_get_preset_active":
+                            if (isDeviceReady())
+                                mGaiaManager.getActivationState(InformationGaiaManager.Controls.PRESETS);
+                            break;
+                        case "native_go_to_setting":
+                            startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
 
-                    }else if(call.method.equals("native_set_preset_active")){
-                        boolean active = call.arguments();
-                        if(isDeviceReady())
-                            mGaiaManager.setActivationState(InformationGaiaManager.Controls.PRESETS, active);
-
-                    }else if(call.method.equals("native_get_preset_active")){
-                        if(isDeviceReady())
-                            mGaiaManager.getActivationState(InformationGaiaManager.Controls.PRESETS);
-                    }else if(call.method.equals("native_go_to_setting")){
-                        startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-
-                    }else if(call.method.equals("native_get_bass")){
-                        if(isDeviceReady())
-                            mGaiaManager.getActivationState(InformationGaiaManager.Controls.BASS_BOOST);
-                    }else if(call.method.equals("native_set_bass")){
-                        boolean active = call.arguments();
-                        if(isDeviceReady())
-                            mGaiaManager.setActivationState(InformationGaiaManager.Controls.BASS_BOOST, active);
-                    }else if(call.method.equals("native_upgrade")){
-                        String url = call.arguments();
-                        downloadFile(url, "1.bin");
-                        return;
-                    }else if(call.method.equals("native_get_firmware_version")){
-                        if(isDeviceReady())
-                            mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
-                    }else{
-                        result.success("I don't know what you say");
+                            break;
+                        case "native_get_bass":
+                            if (isDeviceReady())
+                                mGaiaManager.getActivationState(InformationGaiaManager.Controls.BASS_BOOST);
+                            break;
+                        case "native_set_bass": {
+                            boolean active = call.arguments();
+                            if (isDeviceReady())
+                                mGaiaManager.setActivationState(InformationGaiaManager.Controls.BASS_BOOST, active);
+                            break;
+                        }
+                        case "native_upgrade":
+                            String url = call.arguments();
+                            downloadFile(url, "1.bin");
+                            return;
+                        case "native_get_firmware_version":
+                            if (isDeviceReady())
+                                mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
+                            break;
+                        default:
+                            result.success("I don't know what you say");
+                            break;
                     }
                     /*if(mService == null)
                         getConnectedBtDevice(result);*/
@@ -291,7 +317,7 @@ public class MainActivity extends FlutterActivity
 
     //获取已连接的蓝牙设备
     private void getConnectedBtDevice(MethodChannel.Result result){
-        mMap = new HashMap<String,String>();
+        mMap = new HashMap<>();
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Class<BluetoothAdapter> bluetoothAdapterClass = BluetoothAdapter.class;//得到BluetoothAdapter的Class对象
         try {
@@ -387,7 +413,7 @@ public class MainActivity extends FlutterActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(TAG,"onReceive---------" + intent.getAction().toString());
+            Log.e(TAG,"onReceive---------" + intent.getAction());
             switch (intent.getAction()) {
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
                     int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
@@ -469,7 +495,7 @@ public class MainActivity extends FlutterActivity
      */
     private void onReceiveUpgradeMessage(@BluetoothService.UpgradeMessage int message, Object content) {
         StringBuilder handleMessage = new StringBuilder("Handle a message from BLE service: UPGRADE_MESSAGE, ");
-        Map<String, String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<>();
 
         switch (message) {
             case BluetoothService.UpgradeMessage.UPGRADE_FINISHED:
@@ -869,7 +895,7 @@ public class MainActivity extends FlutterActivity
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
             MainActivity activity = mReference.get();
             if (!activity.mIsPaused) {
                 activity.handleMessageFromService(msg);
@@ -887,7 +913,7 @@ public class MainActivity extends FlutterActivity
 
     @Override
     public void onGetPreset(int preset) {
-        Map<String, Integer> map = new HashMap<String,Integer>();
+        Map<String, Integer> map = new HashMap<>();
         map.put("key", 0 );
         map.put("bank", preset);
         Log.i(TAG, " onGetPreset " +  map.toString());
@@ -897,7 +923,7 @@ public class MainActivity extends FlutterActivity
 
     @Override
     public void onGetControlActivationState(int control, boolean activated) {
-        Map<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         switch(control){
             case InformationGaiaManager.Controls.PRESETS:
                 map.put("key", 1 );
@@ -925,13 +951,28 @@ public class MainActivity extends FlutterActivity
     }
 
     @Override
+    public void onGetCustomEqParams(List<Integer> gains, int gainCount) {
+        Log.i(TAG, " onGetCustomEqParams " +  gains.toString() + "; count " + gainCount);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("key", 7 );
+        Log.i(TAG, " onGetPreset " +  map.toString());
+        String key;
+        for (int i = 0; i < gains.size(); i++){
+            key = "band" + i;
+            map.put(key,gains.get(i));
+        }
+        if(eqEventSink != null)
+            eqEventSink.success(map);
+    }
+
+    @Override
     public void onInformationNotSupported(int information) {
         Log.i(TAG, " onInformationNotSupported ");
     }
 
     @Override
     public void onChargerConnected(boolean isConnected) {
-        Map<String, String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<>();
          if (isConnected) {
             map.put("Status", "Charging" );
         }
@@ -946,7 +987,7 @@ public class MainActivity extends FlutterActivity
 
     @Override
     public void onGetBatteryLevel(int level) {
-        Map<String, String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<>();
         String text = ""+mBatteryLevel;
         map.put("Battery", text );
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
@@ -956,7 +997,7 @@ public class MainActivity extends FlutterActivity
 
     @Override
     public void onGetRSSILevel(int level) {
-        Map<String, String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<>();
         String text = ""+level+" db";
         map.put("Signal", text );
         Log.i(TAG, " onGetRSSILevel " + map.toString());
@@ -978,7 +1019,7 @@ public class MainActivity extends FlutterActivity
     public void onGetAPPVersion(int versionPart1, int versionPart2, int versionPart3, int versionPart4) {
         String APPText = versionPart1 + "." + versionPart2 ;
         String BoxText = ""+versionPart3 ;
-        Map<String, String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<>();
         map.put("Firmware", APPText );
         if(updateEventSink!= null)
             updateEventSink.success(map);
@@ -1060,7 +1101,7 @@ public class MainActivity extends FlutterActivity
 
         //sdcard的目录下的download文件夹，必须设置
         //request.setDestinationInExternalFilesDir(this.getContext(),"",versionUrl.substring(versionUrl.lastIndexOf("/") + 1) );
-        String cachePath = this.getContext().getExternalFilesDir("Download").getPath();
+        String cachePath = Objects.requireNonNull(this.getContext().getExternalFilesDir("Download")).getPath();
         //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         mFile = new File(cachePath, versionUrl.substring(versionUrl.lastIndexOf("/") + 1));
         if(mFile.exists())
@@ -1073,6 +1114,7 @@ public class MainActivity extends FlutterActivity
         mDownloadManager = (DownloadManager) this.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
         //加入下载队列后会给该任务返回一个long型的id，
         //通过该id可以取消任务，重启任务等等，看上面源码中框起来的方法
+        assert mDownloadManager != null;
         mTaskId = mDownloadManager.enqueue(request);
 
         //注册广播接收者，监听下载状态

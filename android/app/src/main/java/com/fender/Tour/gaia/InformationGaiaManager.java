@@ -19,6 +19,9 @@ import com.qualcomm.qti.libraries.gaia.packets.GaiaPacket;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>This class follows the GAIA protocol. It manages all messages which are sent and received over the protocol for
@@ -90,28 +93,22 @@ public class InformationGaiaManager extends AGaiaManager {
     /**
      * To start a task to get the battery level from the device.
      */
-    private final Runnable mRunnableBattery = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (mPendingCustomNotifications) {
-                if (mPendingCustomNotifications.containsKey(Information.BATTERY)) {
-                    mPendingCustomNotifications.put(Information.BATTERY, true);
-                    getInformation(Information.BATTERY);
-                }
+    private final Runnable mRunnableBattery = () -> {
+        synchronized (mPendingCustomNotifications) {
+            if (mPendingCustomNotifications.containsKey(Information.BATTERY)) {
+                mPendingCustomNotifications.put(Information.BATTERY, true);
+                getInformation(Information.BATTERY);
             }
         }
     };
     /**
      * To start a task to get the RSSI value from the device.
      */
-    private final Runnable mRunnableRSSI = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (mPendingCustomNotifications) {
-                if (mPendingCustomNotifications.containsKey(Information.RSSI)) {
-                    mPendingCustomNotifications.put(Information.RSSI, true);
-                    getInformation(Information.RSSI);
-                }
+    private final Runnable mRunnableRSSI = () -> {
+        synchronized (mPendingCustomNotifications) {
+            if (mPendingCustomNotifications.containsKey(Information.RSSI)) {
+                mPendingCustomNotifications.put(Information.RSSI, true);
+                getInformation(Information.RSSI);
             }
         }
     };
@@ -304,11 +301,40 @@ public class InformationGaiaManager extends AGaiaManager {
     }
 
     /**
+     * <p>This method sets up the pre-set of the connected device using the
+     * {@link GAIA#COMMAND_SET_EQ_GROUP_PARAMETER COMMAND_SET_EQ_CONTROL} command.</p>
+     *
+     * @param gain
+     *          gain for band.
+     */
+    public void setCustomEqGain(int band ,int gain) {
+        if (gain >= -12 && gain <= 12 && band >=0 && band < 7) {
+            final int PAYLOAD_LENGTH = 2;
+            final int PRESET_OFFSET = 0;
+            byte[] payload = new byte[PAYLOAD_LENGTH];
+            payload[PRESET_OFFSET] = (byte) band;
+            payload[PRESET_OFFSET+1] = (byte) gain;
+            createRequest(createPacket(GAIA.COMMAND_SET_EQ_GROUP_PARAMETER, payload));
+        }
+        else {
+            Log.w(TAG, "setCustomEqGain used with parameter failed;");
+        }
+    }
+
+    /**
      * <p>This method requests the current pre-set of the connected device using the
      * {@link GAIA#COMMAND_GET_EQ_CONTROL COMMAND_GET_EQ_CONTROL} command.</p>
      */
     public void getPreset() {
         createRequest(createPacket(GAIA.COMMAND_GET_EQ_CONTROL));
+    }
+
+    /**
+     * <p>This method requests the current pre-set of the connected device using the
+     * {@link GAIA#COMMAND_GET_EQ_CONTROL COMMAND_GET_EQ_GROUP_PARAMETER} command.</p>
+     */
+    public void getCustomEqParams() {
+        createRequest(createPacket(GAIA.COMMAND_GET_EQ_GROUP_PARAMETER));
     }
 
     /**
@@ -400,6 +426,10 @@ public class InformationGaiaManager extends AGaiaManager {
                 receiveGetEQControlACK(packet);
                 break;
 
+            case GAIA.COMMAND_GET_EQ_GROUP_PARAMETER:
+                receiveGetCustomEqParamsACK(packet);
+                break;
+
             case GAIA.COMMAND_GET_3D_ENHANCEMENT_CONTROL:
                 receiveGetControlACK(Controls.ENHANCEMENT_3D, packet);
                 break;
@@ -478,7 +508,7 @@ public class InformationGaiaManager extends AGaiaManager {
                     .COMMAND_REGISTER_NOTIFICATION, event, null, getTransportType());
             createRequest(packet);
         } catch (GaiaException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
         }
     }
 
@@ -495,7 +525,7 @@ public class InformationGaiaManager extends AGaiaManager {
                     .COMMAND_CANCEL_NOTIFICATION, event, null, getTransportType());
             createRequest(packet);
         } catch (GaiaException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
         }
     }
 
@@ -523,10 +553,8 @@ public class InformationGaiaManager extends AGaiaManager {
 
         if (payload.length >= PAYLOAD_MIN_LENGTH) {
             @GAIA.NotificationEvents int event = packet.getEvent();
-            switch (event) {
-                case GAIA.NotificationEvents.CHARGER_CONNECTION:
-                    // event has parameters
-                    return receiveEventChargerConnection(packet);
+            if (event == GAIA.NotificationEvents.CHARGER_CONNECTION) {// event has parameters
+                return receiveEventChargerConnection(packet);
             }
             // other events are not supported by this method
             return false;
@@ -600,6 +628,32 @@ public class InformationGaiaManager extends AGaiaManager {
     /**
      * <p>Called when this manager handles a packet with the command
      * {@link GAIA#COMMAND_GET_EQ_CONTROL COMMAND_GET_EQ_CONTROL}.</p>
+     * <p>This method will check if the packet contains the expected parameters, will retrieve them and will dispatch
+     * the information to the listener.</p>
+     *
+     * @param packet
+     *         The received packet with the command COMMAND_GET_EQ_CONTROL.
+     */
+    private void receiveGetCustomEqParamsACK (GaiaPacket packet) {
+        byte[] payload = packet.getPayload();
+        final int PAYLOAD_VALUE_OFFSET = 1;
+        final int PAYLOAD_VALUE_LENGTH = 7;
+        final int PAYLOAD_MIN_LENGTH = PAYLOAD_VALUE_LENGTH + 1; // ACK status length is 1
+        List<Integer> gains = new ArrayList();
+
+
+        if (payload.length >= PAYLOAD_MIN_LENGTH) {
+            for (int i = 0 ; i < PAYLOAD_VALUE_LENGTH; i++)
+            {
+                gains.add((int)payload[PAYLOAD_VALUE_OFFSET+i]);
+            }
+            mListener.onGetCustomEqParams(gains, PAYLOAD_VALUE_LENGTH);
+        }
+    }
+
+    /**
+     * <p>Called when this manager handles a packet with the command
+     * {@link GAIA#COMMAND_GET_EQ_GROUP_PARAMETER COMMAND_GET_EQ_CONTROL}.</p>
      * <p>This method will check if the packet contains the expected parameters, will retrieve them and will dispatch
      * the information to the listener.</p>
      *
@@ -720,10 +774,8 @@ public class InformationGaiaManager extends AGaiaManager {
         final int PAYLOAD_MIN_LENGTH = PAYLOAD_VALUE_LENGTH + 1; // ACK status length is 1
         Log.e(TAG, "APPVersion " + payload[1] + ","+ payload[2] + ","+ payload[3] + ","+ payload[4] + ",");
 
-        if (payload.length >= PAYLOAD_MIN_LENGTH) {
-            mListener.onGetAPPVersion(payload[PAYLOAD_VALUE_1_OFFSET], payload[PAYLOAD_VALUE_2_OFFSET],
-                    payload[PAYLOAD_VALUE_3_OFFSET], payload[PAYLOAD_VALUE_4_OFFSET]);
-        }
+        mListener.onGetAPPVersion(payload[PAYLOAD_VALUE_1_OFFSET], payload[PAYLOAD_VALUE_2_OFFSET],
+                payload[PAYLOAD_VALUE_3_OFFSET], payload[PAYLOAD_VALUE_4_OFFSET]);
     }
 
     /**
@@ -741,17 +793,13 @@ public class InformationGaiaManager extends AGaiaManager {
             case GAIA.COMMAND_GET_CURRENT_BATTERY_LEVEL:
                 mListener.onInformationNotSupported(Information.BATTERY);
                 synchronized (mPendingCustomNotifications) {
-                    if (mPendingCustomNotifications.containsKey(Information.BATTERY)) {
-                        mPendingCustomNotifications.remove(Information.BATTERY);
-                    }
+                    mPendingCustomNotifications.remove(Information.BATTERY);
                 }
                 break;
             case GAIA.COMMAND_GET_CURRENT_RSSI:
                 mListener.onInformationNotSupported(Information.RSSI);
                 synchronized (mPendingCustomNotifications) {
-                    if (mPendingCustomNotifications.containsKey(Information.RSSI)) {
-                        mPendingCustomNotifications.remove(Information.RSSI);
-                    }
+                    mPendingCustomNotifications.remove(Information.RSSI);
                 }
                 break;
             case GAIA.COMMAND_GET_API_VERSION:
@@ -934,6 +982,9 @@ public class InformationGaiaManager extends AGaiaManager {
          *              The control which is considered as not supported.
          */
         void onControlNotSupported(@Controls int control);
+
+        void onGetCustomEqParams(List<Integer> gains, int gainCount);
+
     }
 
 }
