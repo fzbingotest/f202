@@ -19,7 +19,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   List<Widget> _eqList;
   Color _resetColor = Colors.white;
   final List<double> _fenderList     = [7,3,2,2,1,4,11];
-  final List<double> _seztoList   = [4,0,4,8,8,4,7];
+  final List<double> _seztoList   = [0,0,0,0,0,0,0];
   final List<double> _electronicList = [9,3,5,-6,-4,5,3];
   final List<double> _classicList    = [-6,-1,-4,2,-3,0,9];
   final List<double> _femaleList    = [-2,-2,5,4,5,-2,-5];
@@ -157,6 +157,9 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     }
     super.dispose();
   }
+
+  bool _keyValid(int key) => (key>=-12 && key<=12);
+
   void _onEvent(Object event) {
     print("EQ _onEvent _result ---->"+ event.toString());
     Map<String, int> res = new Map<String, int>.from(event);
@@ -185,7 +188,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       for(int i= 0; i<7; i++)
       {
         key1 = key+i.toString();
-        if(res[key1] != null)
+        if(res[key1] != null && _keyValid(res[key1]))
           _seztoList[i] = res[key1].toDouble();
       }
       setState(() {});

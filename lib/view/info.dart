@@ -16,7 +16,7 @@ class _InfoPageState extends State<InfoPage> {
   static const platform=const MethodChannel(CHANNEL_NAME);
   final List<String> _listTitle = ['Model', 'Address','Battery','Box battery','Status','Signal','Firmware','App_Version'];
   Map<String, String> _listContent =  {'Model': 'tws', 'Address': '0:0:0:0:0:0','Battery': '50','Box battery':'50',
-                                    'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.4'};
+                                    'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.6'};
   static const EventChannel eventChannel =  const EventChannel('fender.Tour/event_native');
   StreamSubscription _subscription;
   @override
@@ -98,7 +98,7 @@ class InfoPageGuide extends StatefulWidget{
 class _InfoPageStateGuide extends State<InfoPageGuide> {
   final List<String> _listTitle = ['Model', 'Address','Battery','Box battery','Status','Signal','Firmware','App_Version'];
   Map<String, String> _listContent =  {'Model': 'tws', 'Address': '0:0:0:0:0:0','Battery': '50','Box battery':'50',
-    'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.5'};
+    'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.6'};
   @override
   void initState() {
     super.initState();

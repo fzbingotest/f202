@@ -74,7 +74,7 @@ class Global {
   static double get tabImgWidth => ScreenUtil().setWidth(350);
   static double get tabHeight => ScreenUtil().setHeight(180);
   static double get resetHeight => ScreenUtil().setHeight(160);
-  static double get eqListHeight => ScreenUtil().setHeight(1540);
+  static double get eqListHeight => ScreenUtil().setHeight(1400);
   static double get eqItemHeight => ScreenUtil().setHeight(200);
   static double get eqItemTitleWidth => ScreenUtil().setWidth(260);
   //static double get buttonHeight => ScreenUtil().setHeight(300);
