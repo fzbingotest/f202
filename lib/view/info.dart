@@ -1,70 +1,26 @@
-import 'dart:async';
+import 'package:Tour/utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/myLocalizations.dart';
+import 'package:provider/provider.dart';
 
 class InfoPage extends StatefulWidget{
   @override
   State<StatefulWidget> createState() => new _InfoPageState();
 }
 
-
 class _InfoPageState extends State<InfoPage> {
-  static const String CHANNEL_NAME="fender.Tour/call_native";
-  static const platform=const MethodChannel(CHANNEL_NAME);
   final List<String> _listTitle = ['Model', 'Address','Battery','Box battery','Status','Signal','Firmware','App_Version'];
-  Map<String, String> _listContent =  {'Model': 'tws', 'Address': '0:0:0:0:0:0','Battery': '50','Box battery':'50',
-                                    'Status': 'Not charging','Signal': '-30 db','Firmware': '1.0.0','App_Version': '1.0.6'};
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/event_native');
-  StreamSubscription _subscription;
   @override
   void initState() {
     super.initState();
-    _subscription = eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
-    _getDevice();
-    //platform.invokeMethod('call_native_method', 22);
   }
   @override
   void dispose() {
     super.dispose();
-    //
-    try {
-      if (_subscription != null) {
-        _subscription.cancel();
-      }
-    } on PlatformException catch (e){
-      print("failed to get devices "+e.toString());
-    }
-
   }
 
-  void _onEvent(Object event) {
-    print("_onEvent _result ---->"+ event.toString());
-    Map<String, String> res = new Map<String, String>.from(event);
-
-    setState(() {
-      _listContent.addAll(res);
-    });
-  }
-
-  void _onError(Object error) {
-    print("_onError _result ---->"+ error.toString());
-  }
-
-  Future<Null> _getDevice() async {
-    try {
-      var result = await platform.invokeMethod('native_get_information');
-      Map<String, String> res = new Map<String, String>.from(result);
-
-      print("initState _result ---->"+ result.toString());
-      _listContent.addAll(res);
-    } on PlatformException catch (e) {
-      print("failed to get devices "+e.toString());
-    }
-    //_listContent['Model'] = _result;
-  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,7 +35,32 @@ class _InfoPageState extends State<InfoPage> {
                     SizedBox(child: Text(MyLocalizations.of(Global.context).getText(_listTitle[f])+':', style: Global.contentTextStyle), width:Global.infoItemTitleWidth),
                     SizedBox( width: Global.columnPadding),
                     Expanded(
-                      child: Text(_listContent[_listTitle[f]], style: Global.contentTextStyle),
+                      child: Selector(builder:  (BuildContext context, String data, Widget child) {
+                        print('InfoPageState rebuild............'+f.toString());
+                        return Text(data, style: Global.contentTextStyle/*TextStyle(color: Colors.white, fontSize: 20)*/);
+                      }, selector: (BuildContext context, bluetoothService btService) {
+                        //return data to builder
+                        switch(f){
+                          case 0:
+                            return btService.model;
+                          case 1:
+                            return btService.address;
+                          case 2:
+                            return btService.battery;
+                          case 3:
+                            return btService.boxBattery;
+                          case 4:
+                            return btService.status;
+                          case 5:
+                            return btService.signal;
+                          case 6:
+                            return btService.firmware;
+                          default:
+                            return btService.appVersion;
+                        }
+                        //return btService.listContent[_listTitle[f]];
+                      },),
+                      //Text(_listContent[_listTitle[f]], style: Global.contentTextStyle),
                     )
                   ],
                 )

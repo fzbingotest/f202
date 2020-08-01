@@ -317,7 +317,10 @@ public class MainActivity extends FlutterActivity
 
     //获取已连接的蓝牙设备
     private void getConnectedBtDevice(MethodChannel.Result result){
-        mMap = new HashMap<>();
+        if(mMap == null)
+            mMap = new HashMap<>();
+        else
+            mMap.clear();
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Class<BluetoothAdapter> bluetoothAdapterClass = BluetoothAdapter.class;//得到BluetoothAdapter的Class对象
         try {
@@ -347,6 +350,14 @@ public class MainActivity extends FlutterActivity
                         mMap.put("Address",device.getAddress());
                         //getInformationFromDevice();
                         result.success(mMap);
+                        if(mainEventSink != null)
+                        {
+                            Map<String, String> mainMap = new HashMap<>();
+                            mainMap.put("key", "device");
+                            mainMap.put("model", device.getName());
+                            mainMap.put("address",device.getAddress());
+                            mainEventSink.success(mainMap);
+                        }
                         return;
                     }
                 }
@@ -363,7 +374,10 @@ public class MainActivity extends FlutterActivity
 
     //获取已连接的蓝牙设备
     private void tryConnectedBtDevice(){
-        mMap = new HashMap<String,String>();
+        if(mMap == null)
+            mMap = new HashMap<>();
+        else
+            mMap.clear();
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Class<BluetoothAdapter> bluetoothAdapterClass = BluetoothAdapter.class;//得到BluetoothAdapter的Class对象
         try {
@@ -388,11 +402,14 @@ public class MainActivity extends FlutterActivity
                         Log.i(TAG,"Battery:"+battery);
                         mBatteryLevel = battery;
                         //start bdr
-                        mMap.put("Model", device.getName());
-                        mMap.put("Address",device.getAddress());
-                        //getInformationFromDevice();
-                        if(mainEventSink!=null)
-                            mainEventSink.success(mMap);
+                        if(mainEventSink != null)
+                        {
+                            Map<String, String> mainMap = new HashMap<>();
+                            mainMap.put("key", "device");
+                            mainMap.put("model", device.getName());
+                            mainMap.put("address",device.getAddress());
+                            mainEventSink.success(mainMap);
+                        }
                         start_bdr_devices(device);
                         return;
                     }
@@ -420,7 +437,13 @@ public class MainActivity extends FlutterActivity
                     switch (blueState) {
                         case BluetoothAdapter.STATE_TURNING_ON:
                             Log.e(TAG,"onReceive---------STATE_TURNING_ON");
-                            break;
+                            if(mainEventSink != null)
+                            {
+                                Map<String, String> mainMap = new HashMap<>();
+                                mainMap.put("key", "bt");
+                                mainMap.put("value", "turning on");
+                                mainEventSink.success(mainMap);
+                            }                            break;
                         case BluetoothAdapter.STATE_ON:
                             Log.e(TAG,"onReceive---------STATE_ON");
                             if(mService != null){
@@ -436,6 +459,14 @@ public class MainActivity extends FlutterActivity
                                 mService.disconnectDevice();
                             }
                             //BleUtil.toReset(mContext);
+                            if(mainEventSink != null)
+                            {
+                                Map<String, String> mainMap = new HashMap<>();
+                                mainMap.put("key", "bt");
+                                mainMap.put("value", "turning off");
+                                mainEventSink.success(mainMap);
+                            }
+
                             break;
                         case BluetoothAdapter.STATE_OFF:
                             Log.e(TAG,"onReceive---------STATE_OFF");
@@ -506,6 +537,13 @@ public class MainActivity extends FlutterActivity
                 if(updateEventSink != null)
                     updateEventSink.success(map);
                 handleMessage.append("UPGRADE_FINISHED");
+                if(mainEventSink != null)
+                {
+                    Map<String, String> mainMap = new HashMap<>();
+                    mainMap.put("key", "update");
+                    mainMap.put("value", "finish");
+                    mainEventSink.success(mainMap);
+                }
                 break;
 
             case BluetoothService.UpgradeMessage.UPGRADE_REQUEST_CONFIRMATION:
@@ -536,6 +574,13 @@ public class MainActivity extends FlutterActivity
                 if(updateEventSink != null)
                     updateEventSink.success(map);
                 handleMessage.append("UPGRADE_ERROR");
+                if(mainEventSink != null)
+                {
+                    Map<String, String> mainMap = new HashMap<>();
+                    mainMap.put("key", "update");
+                    mainMap.put("value", "error");
+                    mainEventSink.success(mainMap);
+                }
                 break;
 
             case BluetoothService.UpgradeMessage.UPGRADE_UPLOAD_PROGRESS:
@@ -684,12 +729,23 @@ public class MainActivity extends FlutterActivity
             {
                 if(connectionState == BluetoothService.State.DISCONNECTED)
                 {
-                    //this.mService = null;
-                    mMap.put("Model", "none");
-                    mMap.put("Address","none");
-                    //getInformationFromDevice();
-                    if(mainEventSink!=null)
-                        mainEventSink.success(mMap);
+                    if(mainEventSink != null)
+                    {
+                        Map<String, String> mainMap = new HashMap<>();
+                        mainMap.put("key", "service");
+                        mainMap.put("value", "disconnect");
+                        mainEventSink.success(mainMap);
+                    }
+                    if(mainEventSink != null)
+                    {
+                        Map<String, String> mainMap = new HashMap<>();
+                        mainMap.put("key", "device");
+                        mainMap.put("model","none");
+                        mainMap.put("address","none");
+                        mainEventSink.success(mainMap);
+                    }
+                   // mService.disconnectDevice();
+                    mService = null;
                 }
             }
                 if (DEBUG) Log.d(TAG, handleMessage + "CONNECTION_STATE_HAS_CHANGED: " + stateLabel);
@@ -747,6 +803,13 @@ public class MainActivity extends FlutterActivity
                 GAIA.Transport.BR_EDR : GAIA.Transport.BLE;
         mGaiaManager = new InformationGaiaManager(this, transport);
         Log.d(TAG, "onServiceConnected " + transport);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "service");
+            mainMap.put("value", "connect");
+            mainEventSink.success(mainMap);
+        }
         //getInformationFromDevice();
     }
 
@@ -754,7 +817,13 @@ public class MainActivity extends FlutterActivity
         rmInformationFromDevice();
         mGaiaManager = null;
         Log.d(TAG, "onServiceDisconnected " );
-    }
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "service");
+            mainMap.put("value", "disconnect");
+            mainEventSink.success(mainMap);
+        }    }
 
     private boolean startService() {
         // get the bluetooth information
@@ -919,6 +988,13 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onGetPreset " +  map.toString());
         if(eqEventSink != null)
             eqEventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "eqBank");
+            mainMap.put("value", String.valueOf(preset));
+            mainEventSink.success(mainMap);
+        }
     }
 
     @Override
@@ -930,6 +1006,13 @@ public class MainActivity extends FlutterActivity
                 map.put("value", activated?1:0);
                 if(eqEventSink != null)
                     eqEventSink.success(map);
+                if(mainEventSink != null)
+                {
+                    Map<String, String> mainMap = new HashMap<>();
+                    mainMap.put("key", "eqActivated");
+                    mainMap.put("value", String.valueOf(activated));
+                    mainEventSink.success(mainMap);
+                }
                 break;
             case InformationGaiaManager.Controls.ENHANCEMENT_3D:
                 break;
@@ -938,6 +1021,13 @@ public class MainActivity extends FlutterActivity
                 map.put("value", activated?1:0);
                 if(bassEventSink != null)
                     bassEventSink.success(map);
+                if(mainEventSink != null)
+                {
+                    Map<String, String> mainMap = new HashMap<>();
+                    mainMap.put("key", "bassActivated");
+                    mainMap.put("value", String.valueOf(activated));
+                    mainEventSink.success(mainMap);
+                }
                 break;
         }
         //map.put(control, activated );
@@ -963,6 +1053,18 @@ public class MainActivity extends FlutterActivity
         }
         if(eqEventSink != null)
             eqEventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "userEq");
+            for (int i = 0; i < gains.size(); i++){
+                key = "band" + i;
+                mainMap.put(key,String.valueOf(gains.get(i)));
+            }
+            //mainMap.put("value", String.valueOf(activated));
+            mainEventSink.success(mainMap);
+        }
+
     }
 
     @Override
@@ -982,6 +1084,13 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onChargerConnected " + map.toString());
         if(eventSink != null)
             eventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "charger");
+            mainMap.put("value", isConnected?"Charging":"Not charging");
+            mainEventSink.success(mainMap);
+        }
 
     }
 
@@ -993,6 +1102,13 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
         if(eventSink != null)
             eventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "battery");
+            mainMap.put("value", String.valueOf(level));
+            mainEventSink.success(mainMap);
+        }
     }
 
     @Override
@@ -1003,6 +1119,13 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onGetRSSILevel " + map.toString());
         if(eventSink != null)
             eventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "Signal");
+            mainMap.put("value", String.valueOf(level));
+            mainEventSink.success(mainMap);
+        }
 
     }
 
@@ -1027,16 +1150,41 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onGetAPPVersion = " + map.toString());
         if(eventSink != null)
             eventSink.success(map);
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "Firmware");
+            mainMap.put("value", APPText);
+            mainMap.put("Box battery", BoxText );
+            mainEventSink.success(mainMap);
+        }
     }
 
     @Override
     public void onBluetoothDisabled() {
+
         Log.i(TAG, " onBluetoothDisabled ");
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "bt");
+            mainMap.put("value", "disabled");
+            mainEventSink.success(mainMap);
+        }
+
     }
 
     @Override
-    public void onBluetoothEnabled() {
+    public void onBluetoothEnabled()
+    {
         Log.i(TAG, " onBluetoothEnabled ");
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "bt");
+            mainMap.put("value", "enabled");
+            mainEventSink.success(mainMap);
+        }
     }
 
     // ====== PRIVATE METHODS ======================================================================

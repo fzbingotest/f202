@@ -17,8 +17,6 @@ class UpdatePage extends StatefulWidget{
 }
 
 class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateMixin  {
-  //static const String UPDATE = '   Firmware Update   ';
-  //static const String UPDATING = '   Firmware updating   ';
   String _version;
   String _currentVersion = '';
   String _url = 'abc';
@@ -37,9 +35,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     print(this.toString());
-    _animationController =
-        AnimationController(duration: Duration(seconds: 150), vsync: this);
-   // _animation = Tween(begin: 0.001, end: 1.0).animate(_animationController);
+    _animationController = AnimationController(duration: Duration(seconds: 150), vsync: this);
     _subscription = eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
     _animationController.addListener(() {
       _step= _step+0.00008;
@@ -47,7 +43,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         _step = 0.999;
       //print("_animationController" +_step.toString());
       setState(() {
-
       });
     });
     _version = MyLocalizations.of(Global.context).getText('unknown');
@@ -76,9 +71,11 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         //update success
         _animationController.stop();
         _step = 1.0;
-        _connectDevice();
+        setState(() {
+        });
         _isUpdating =false;
         Wakelock.disable();
+        _connectDevice();
       }
     else if(res['Firmware']!=null )
       {
@@ -95,8 +92,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       _showToast();
       Wakelock.disable();
     }
-
-    //setState(() {});
   }
 
   void _onError(Object error) {
@@ -261,7 +256,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     print("update" + context.toString());
     _stack = _buildStack();
-    //_step = 0.0;
     return new Container(
       padding: EdgeInsets.all(Global.eqBodyPadding),
       child: Center(
@@ -283,10 +277,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           Container(
             height: Global.updateBodyHeight,
             child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
-            /*decoration: BoxDecoration(
-              color: Colors.red,
-            ),*/
-            //color: Colors.red[400],
           ),
 
           SizedBox(
@@ -300,7 +290,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
+                if(!_isUpdating /*&& _currentVersion.compareTo(_version)!=0*/)
                   _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();
