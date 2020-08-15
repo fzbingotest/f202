@@ -54,7 +54,7 @@ class Global {
   static double get fontSizeTitle => ScreenUtil().setSp(128);
   static double get bottomLogoWidth => ScreenUtil().setWidth(798);
   static double get bottomLogoHeight => ScreenUtil().setHeight(300);
-  static double get bottomViewWidth => ScreenUtil().setWidth(318);
+  static double get bottomViewWidth => ScreenUtil().setWidth(250);
   static double get bottomViewHeight => ScreenUtil().setHeight(240);
   static double get appBodyHeight => ScreenUtil().setHeight(2100);
 
@@ -77,16 +77,20 @@ class Global {
   static double get eqListHeight => ScreenUtil().setHeight(1400);
   static double get eqItemHeight => ScreenUtil().setHeight(200);
   static double get eqItemTitleWidth => ScreenUtil().setWidth(260);
+  static double get eqItemValueWidth => ScreenUtil().setWidth(240);
   //static double get buttonHeight => ScreenUtil().setHeight(300);
   static TextStyle get contentTextStyle => TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(72));
   static TextStyle get titleTextStyle1 => TextStyle(color: Colors.white, fontSize: ScreenUtil().setSp(96));
   static TextStyle get eqHzTextStyle => TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60));
   static TextStyle get floatHzTextStyle => TextStyle(color: Colors.black87, fontSize: ScreenUtil().setSp(72), fontWeight: FontWeight.normal, decoration: TextDecoration.none);
+  static Color     get appRed => Color.fromARGB(255, 236, 27, 35);
+  static Color     get appGreen => Color.fromARGB(255, 13, 252, 6);
+  static TextStyle get warningTextStyle => TextStyle(color: Color.fromARGB(255, 236, 27, 35), fontSize: ScreenUtil().setSp(72));
   //update view
   static double get updateImgHeight => ScreenUtil().setHeight(916);
   static double get updateImgWidth => ScreenUtil().setWidth(876);
-  static double get updateProcessHeight => ScreenUtil().setHeight(910);
-  static double get updateProcessWidth => ScreenUtil().setWidth(826);
+  static double get updateProcessHeight => ScreenUtil().setHeight(763);
+  static double get updateProcessWidth => ScreenUtil().setWidth(730);
   static double get updateBodyHeight => ScreenUtil().setHeight(1350);
   static double get updateIconHeight => ScreenUtil().setHeight(200);
   static double get appHeight => ScreenUtil().setHeight(3120);

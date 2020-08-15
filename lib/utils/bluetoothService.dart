@@ -9,7 +9,14 @@ class bluetoothService with ChangeNotifier {
   static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   static const EventChannel eventChannel =  const EventChannel('fender.Tour/main_event_native');
+  static const _LeftHold= 2;
+  static const _RightHold = 5;
+  static const _Left2tap = 1;
+  static const _Right_2tap = 4;
+  static const _Left_tap = 0;
+  static const _Right_tap = 3;
   static bluetoothService _instance ;
+  VoidCallback _noDeviceListener;
 
   StreamSubscription _subscription;
   bool isInitial = false;
@@ -20,8 +27,10 @@ class bluetoothService with ChangeNotifier {
   String status ='Not charging';
   String signal = '-30 db';
   String firmware = '1.0.0';
-  String appVersion = '1.0.7';
+  String appVersion = '1.1.3';
   bool bass = false;
+  List<int> buttonFunction = [0,0,0,0,0,0];
+
   static get instance => _instance;
   bluetoothService initial() {
     print(TAG + "initial ---->"+ isInitial.toString());
@@ -30,8 +39,13 @@ class bluetoothService with ChangeNotifier {
           _onEvent, onError: _onError);
       isInitial = true;
       _instance = this;
+      _noDeviceListener = null;
     }
     return _instance;
+  }
+  void setDeviceCallback(VoidCallback a)
+  {
+    _noDeviceListener = a;
   }
 
   void _onEvent(Object event) {
@@ -63,24 +77,46 @@ class bluetoothService with ChangeNotifier {
         signal = res['value']+' db';
         notifyListeners();
         break;
+      case 'battery':
+        print(TAG +'get battery ' + res['value']);
+        battery = res['value'];
+        notifyListeners();
+        break;
       case 'device':
         print(TAG +'get device' + res['address']);
         model = res['model'];
         address = res['address'];
 
+        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') &&_noDeviceListener!= null)
+          _noDeviceListener();
+        notifyListeners();
+        break;
+      case 'button':
+        print(TAG +'get button' + res['value']);
+        _decodeButtonFunc(res['value']);
         notifyListeners();
         break;
 
     }
 
   }
+  void _decodeButtonFunc(String button){
+    int val = int.parse(button);
+    print(TAG +'_decodeButtonFunc ' + val.toString());
+    buttonFunction[_LeftHold] = (val>>10)&0x3;
+    buttonFunction[_RightHold] = (val>>8)&0x3;
+    buttonFunction[_Left2tap] = (val>>6)&0x3;
+    buttonFunction[_Right_2tap] = (val>>4)&0x3;
+    buttonFunction[_Left_tap] = (val>>2)&0x3;
+    buttonFunction[_Right_tap] = (val)&0x3;
 
+  }
   void _onError(Object error) {
     print(TAG + "_onError _result ---->"+ error.toString());
   }
 
   void dispose(){
-    super.dispose();
+    //super.dispose();
     print(TAG + "dispose ----");
     if(_subscription != null){
       _subscription.cancel();
@@ -104,6 +140,69 @@ class bluetoothService with ChangeNotifier {
       platform.invokeMethod('native_set_bass', active);
       print("_setBassActive " + active.toString());
       notifyListeners();
+    } on PlatformException catch (e) {
+      print("failed to get devices "+e.toString());
+    }
+  }
+
+  void getInfo()
+  {
+    try {
+      platform.invokeMethod('native_get_information');
+    } on PlatformException catch (e) {
+      print("failed to get information "+e.toString());
+    }
+
+  }
+
+  void getDevice() {
+    try {
+      platform.invokeMethod('native_get_current_device');
+    } on PlatformException catch (e) {
+      print("failed to get devices "+e.toString());
+    }
+  }
+
+  int _calcButtonFunc(){
+    int ret = 0;
+    ret = ((buttonFunction[_LeftHold]&0x3)<<10)|((buttonFunction[_RightHold]&0x3)<<8)
+    |((buttonFunction[_Left2tap]&0x3)<<6) |((buttonFunction[_Right_2tap]&0x3)<<4)
+    |((buttonFunction[_Left_tap]&0x3)<<2) |((buttonFunction[_Right_tap]&0x3));
+    return ret;
+  }
+  int _resetButtonFunc(){
+    int ret = 0;
+    buttonFunction[_LeftHold] = buttonFunction[_RightHold] = buttonFunction[_Left2tap] = buttonFunction[_Right_2tap] = buttonFunction[_Left_tap] = buttonFunction[_Right_tap] = 0;
+    return ret;
+  }
+
+  void setButtonFunction(int index, int value) {
+    try {
+      int button = 0;
+      buttonFunction[index] = value;
+      button = _calcButtonFunc();
+      platform.invokeMethod('native_set_button', button);
+      print("setButtonFunction " + button.toString());
+      notifyListeners();
+    } on PlatformException catch (e) {
+      print("failed to get devices "+e.toString());
+    }
+  }
+
+  void resetButtonFunction() {
+    try {
+      int button = _resetButtonFunc();
+      platform.invokeMethod('native_set_button', button);
+      print("setButtonFunction " + button.toString());
+      notifyListeners();
+    } on PlatformException catch (e) {
+      print("failed to get devices "+e.toString());
+    }
+  }
+  void getButtonFunction() {
+    try {
+      platform.invokeMethod('native_get_button');
+      //print("_setBassActive " + active.toString());
     } on PlatformException catch (e) {
       print("failed to get devices "+e.toString());
     }

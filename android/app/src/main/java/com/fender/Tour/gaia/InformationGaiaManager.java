@@ -329,6 +329,19 @@ public class InformationGaiaManager extends AGaiaManager {
         createRequest(createPacket(GAIA.COMMAND_GET_EQ_CONTROL));
     }
 
+    public void getButtonFunction() {
+        createRequest(createPacket(GAIA.COMMAND_BUTTON_GET));
+    }
+
+    public void setButtonFunction(int val) {
+        final int PAYLOAD_LENGTH = 2;
+        final int PRESET_OFFSET = 0;
+        byte[] payload = new byte[PAYLOAD_LENGTH];
+        payload[PRESET_OFFSET] = (byte) (val&0xff);
+        payload[PRESET_OFFSET+1] = (byte) ((val>>8)&0xff);
+        createRequest(createPacket(GAIA.COMMAND_BUTTON_SET, payload));
+    }
+
     /**
      * <p>This method requests the current pre-set of the connected device using the
      * {@link GAIA#COMMAND_GET_EQ_CONTROL COMMAND_GET_EQ_GROUP_PARAMETER} command.</p>
@@ -426,10 +439,13 @@ public class InformationGaiaManager extends AGaiaManager {
                 receiveGetEQControlACK(packet);
                 break;
 
+            case GAIA.COMMAND_BUTTON_GET:
+                receiveGetButtonFunctionACK(packet);
+                break;
+
             case GAIA.COMMAND_GET_EQ_GROUP_PARAMETER:
                 receiveGetCustomEqParamsACK(packet);
                 break;
-
             case GAIA.COMMAND_GET_3D_ENHANCEMENT_CONTROL:
                 receiveGetControlACK(Controls.ENHANCEMENT_3D, packet);
                 break;
@@ -650,6 +666,20 @@ public class InformationGaiaManager extends AGaiaManager {
             mListener.onGetCustomEqParams(gains, PAYLOAD_VALUE_LENGTH);
         }
     }
+
+    private void receiveGetButtonFunctionACK (GaiaPacket packet) {
+        byte[] payload = packet.getPayload();
+        final int PAYLOAD_VALUE_OFFSET = 1;
+        final int PAYLOAD_VALUE_LENGTH = 2;
+        final int PAYLOAD_MIN_LENGTH = PAYLOAD_VALUE_LENGTH + 1; // ACK status length is 1
+        int val = payload[PAYLOAD_VALUE_OFFSET]&0xff | ((payload[PAYLOAD_VALUE_OFFSET+1]&0xff)<<8);
+        Log.e(TAG, "receiveGetButtonFunctionACK -" + payload[PAYLOAD_VALUE_OFFSET+1] + " - "+ payload[PAYLOAD_VALUE_OFFSET] + "val = " + val);
+
+        if (payload.length >= PAYLOAD_MIN_LENGTH) {
+            mListener.onGetButtonFunction(val);
+        }
+    }
+
 
     /**
      * <p>Called when this manager handles a packet with the command
@@ -984,6 +1014,7 @@ public class InformationGaiaManager extends AGaiaManager {
         void onControlNotSupported(@Controls int control);
 
         void onGetCustomEqParams(List<Integer> gains, int gainCount);
+        void onGetButtonFunction( int val);
 
     }
 

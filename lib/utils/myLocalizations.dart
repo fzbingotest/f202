@@ -51,7 +51,9 @@ class  MyLocalizations {
       'Update_confirm':'Are you sure to update firmware ?',
       'Update':'Update',
       'Cancel':'Cancel',
-
+      'SETTING':'SETTING',
+      'Reset':'Reset',
+      'Updating_warn':'Please keep this screen foreground until update finished',
     },
     'zh_CN': {
       'DRIVE': '配置',
@@ -98,6 +100,9 @@ class  MyLocalizations {
       'Update_confirm':'您确定要升级固件吗？',
       'Update':'升级',
       'Cancel':'取消',
+      'SETTING':'设置',
+      'Reset':'重置',
+      'Updating_warn':'请保持此界面,等待升级完成',
     },
     'zh_HK': {
       'DRIVE': '設定',
@@ -144,6 +149,9 @@ class  MyLocalizations {
       'Update_confirm':'您確定要陞級固件嗎？',
       'Update':'升級',
       'Cancel':'取消',
+      'SETTING':'配置',
+      'Reset':'重置',
+      'Updating_warn':'請保持這個界面直到升級完成!',
     },
     'zh_TW': {
       'DRIVE': '設定',
@@ -190,6 +198,9 @@ class  MyLocalizations {
       'Update_confirm':'您確定要陞級固件嗎？',
       'Update':'升級',
       'Cancel':'取消',
+      'SETTING':'配置',
+      'Reset':'重置',
+      'Updating_warn':'請保持這個界面直到升級完成!',
     }
   };
 

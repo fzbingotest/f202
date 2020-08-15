@@ -46,6 +46,7 @@ import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeError;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
 import com.qualcomm.qti.libraries.vmupgrade.codes.ResumePoints;
+import com.qualcomm.qti.libraries.vmupgrade.codes.ReturnCodes;
 
 
 import android.bluetooth.BluetoothAdapter;
@@ -79,6 +80,7 @@ public class MainActivity extends FlutterActivity
     private EventChannel.EventSink mainEventSink;
     private Map<String, String> mMap;
     private long mStartTime = 0;
+    private int isUploaded = 0;
     private File mFile = null;
     private int mBatteryLevel = 0;
 
@@ -155,14 +157,12 @@ public class MainActivity extends FlutterActivity
                             result.success(res);
                             break;
                         case "native_get_bt_device":
+                        case "native_get_current_device":
                             getConnectedBtDevice(result);
                             break;
                         case "native_get_information":
                             getInformationFromDevice();
                             result.success(mMap);
-                            break;
-                        case "native_get_current_device":
-                            getConnectedBtDevice(result);
                             break;
                         case "native_get_current_preset":
                             if (isDeviceReady())
@@ -192,6 +192,17 @@ public class MainActivity extends FlutterActivity
                             if (isDeviceReady())
                                 mGaiaManager.setCustomEqGain(args.get(0), args.get(1));
 
+                            break;
+                        case "native_get_button":
+                            Log.i(TAG, "native_get_button " );
+                            if (isDeviceReady())
+                                mGaiaManager.getButtonFunction();
+                            break;
+                        case "native_set_button":
+                            int func = call.arguments();
+                            Log.i(TAG, "native_set_button " + func);
+                            if (isDeviceReady())
+                                mGaiaManager.setButtonFunction(func);
                             break;
                         case "native_get_preset_active":
                             if (isDeviceReady())
@@ -362,6 +373,14 @@ public class MainActivity extends FlutterActivity
                     }
                 }
             }
+            if(mainEventSink != null)
+            {
+                Map<String, String> mainMap = new HashMap<>();
+                mainMap.put("key", "device");
+                mainMap.put("model", "none");
+                mainMap.put("address","none");
+                mainEventSink.success(mainMap);
+            }
             mMap.put("Model", "none");
             mMap.put("Address","none");
             //getInformationFromDevice();
@@ -495,6 +514,7 @@ public class MainActivity extends FlutterActivity
         if (file != null) {
             mStartTime = 0;
             mService.startUpgrade(file);
+            isUploaded = 1;
         }
 
     }
@@ -534,6 +554,7 @@ public class MainActivity extends FlutterActivity
                 map.put("status", status );
                 Log.i(TAG, " onReceiveUpgradeMessage " +  map.toString() +updateEventSink.toString());
                 mStartTime = 0;
+                isUploaded = 0;
                 if(updateEventSink != null)
                     updateEventSink.success(map);
                 handleMessage.append("UPGRADE_FINISHED");
@@ -549,6 +570,7 @@ public class MainActivity extends FlutterActivity
             case BluetoothService.UpgradeMessage.UPGRADE_REQUEST_CONFIRMATION:
                 @UpgradeManager.ConfirmationType int confirmation = (int) content;
                 //askForConfirmation(confirmation);
+                Log.i(TAG, " UPGRADE_REQUEST_CONFIRMATION " +  mService.toString());
                 if(mService!=null)
                     mService.sendConfirmation(confirmation, true);
                 handleMessage.append("UPGRADE_REQUEST_CONFIRMATION");
@@ -567,10 +589,15 @@ public class MainActivity extends FlutterActivity
             case BluetoothService.UpgradeMessage.UPGRADE_ERROR:
                 UpgradeError error = (UpgradeError) content;
                 mStartTime = 0;
+                isUploaded = 0;
                 manageError(error);
-                map.put("status", error.getString() );
                 Log.i(TAG, " onReceiveUpgradeMessage error " +  map.toString());
-                mStartTime = 0;
+                if(error.getReturnCode() == ReturnCodes.Enum.ERROR_LOADER_ERROR) {
+                    map.put("status", "0");
+                }
+                else {
+                    map.put("status", error.getString() );
+                }
                 if(updateEventSink != null)
                     updateEventSink.success(map);
                 handleMessage.append("UPGRADE_ERROR");
@@ -736,16 +763,16 @@ public class MainActivity extends FlutterActivity
                         mainMap.put("value", "disconnect");
                         mainEventSink.success(mainMap);
                     }
-                    if(mainEventSink != null)
+                    if(mainEventSink != null && isUploaded==0)
                     {
                         Map<String, String> mainMap = new HashMap<>();
                         mainMap.put("key", "device");
                         mainMap.put("model","none");
                         mainMap.put("address","none");
                         mainEventSink.success(mainMap);
+                        mService = null;
                     }
                    // mService.disconnectDevice();
-                    mService = null;
                 }
             }
                 if (DEBUG) Log.d(TAG, handleMessage + "CONNECTION_STATE_HAS_CHANGED: " + stateLabel);
@@ -1068,6 +1095,19 @@ public class MainActivity extends FlutterActivity
     }
 
     @Override
+    public void onGetButtonFunction(int val) {
+        Log.i(TAG, " onGetButtonFunction " + val);
+        if(mainEventSink != null)
+        {
+            tryConnectedBtDevice();
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "button");
+            mainMap.put("value", String.valueOf(val));
+            mainEventSink.success(mainMap);
+        }
+    }
+
+    @Override
     public void onInformationNotSupported(int information) {
         Log.i(TAG, " onInformationNotSupported ");
     }
@@ -1104,9 +1144,10 @@ public class MainActivity extends FlutterActivity
             eventSink.success(map);
         if(mainEventSink != null)
         {
+            tryConnectedBtDevice();
             Map<String, String> mainMap = new HashMap<>();
             mainMap.put("key", "battery");
-            mainMap.put("value", String.valueOf(level));
+            mainMap.put("value", String.valueOf(mBatteryLevel));
             mainEventSink.success(mainMap);
         }
     }

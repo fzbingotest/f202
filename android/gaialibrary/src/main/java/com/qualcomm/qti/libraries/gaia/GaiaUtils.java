@@ -480,8 +480,8 @@ public final class GaiaUtils {
             case GAIA.COMMAND_GET_APPLICATION_VERSION:
                 name = "COMMAND_GET_APPLICATION_VERSION";
                 break;
-            case GAIA.COMMAND_GET_PIO_STATE:
-                name = "COMMAND_GET_PIO_STATE";
+            case GAIA.COMMAND_BUTTON_GET:
+                name = "COMMAND_BUTTON_GET";
                 break;
             case GAIA.COMMAND_READ_ADC:
                 name = "COMMAND_READ_ADC";

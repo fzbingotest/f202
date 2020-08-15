@@ -4,16 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/myLocalizations.dart';
 import 'package:provider/provider.dart';
-class ConfigsPage extends StatefulWidget{
+class SettingPage extends StatefulWidget{
   @override
-  State<StatefulWidget> createState() => new _ConfigsPageState();
+  State<StatefulWidget> createState() => new _SettingPageState();
 }
 
-class _ConfigsPageState extends State<ConfigsPage> {
+class _SettingPageState extends State<SettingPage> {
   bool check = false;
+  static List<String> _listTitle = ['Left tap', 'Left double-tap', 'Left hold', 'Right tap', 'Right double-tap', 'Right hold'];
+  /*List<int> _value = [1,3,2,1,3,2];*/
   @override
   void initState() {
     super.initState();
+    bluetoothService.instance.getButtonFunction();
   }
   @override
   void dispose() {
@@ -24,125 +27,76 @@ class _ConfigsPageState extends State<ConfigsPage> {
   @override
   Widget build(BuildContext context) {
     print("build " + this.toString());
-    return new Container(
-      padding: EdgeInsets.all(Global.bodyPadding),
+    return new Column(
+
+      children: <Widget>[ Container(
+        padding: EdgeInsets.fromLTRB(Global.bodyPadding/2,  Global.bodyPadding,Global.bodyPadding/2,Global.bodyPadding),
+        alignment:Alignment.bottomLeft,
         child: Column(
-          children: <Widget>[
-            Container(
-              height: Global.titleHeight,
-              child: Text(
-                MyLocalizations.of(Global.context).getText('Audio_Enhance'),
-                style: TextStyle(color: Colors.white, fontSize: Global.fontSizeTitle), // Theme.of(context).textTheme.headline3,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              height: Global.contentHeight,
-              child: Text(
-                MyLocalizations.of(Global.context).getText('enhance_content'),
-              style: TextStyle(color: Colors.grey, fontSize: Global.fontSizeInfo), // Theme.of(context).textTheme.headline3,
-              textAlign: TextAlign.center,
-              ),
-            ),
-
-            Container(
-            height: Global.contentHeight,
-            child: Selector(builder:  (BuildContext context, bool data, Widget child) {
-              return Image.asset((data ?'assets/images/enhance_1.png' : 'assets/images/enhance_0.png'), height: Global.imageHeight, width: Global.imageWidth);
-            }, selector: (BuildContext context, bluetoothService btService) {
-              //return data to builder
-              return btService.bass;
-            },),
-
-            ),
-
-            Container(
-            height: Global.buttonHeight,
-            child: Selector(builder:  (BuildContext context, bool data, Widget child) {
-              return new CupertinoSwitch(
-                value: data,
-                activeColor: Color.fromARGB(255, 236, 27, 35), //Colors.red,     // 激活时原点颜色
-                //focusColor: Colors.green,
-                trackColor: Color.fromARGB(255, 13, 252, 6),
-                onChanged: (bool val) {
-                  bluetoothService.instance.setBassActive(val);
-                },
-              );
-            }, selector: (BuildContext context, bluetoothService btService) {
-              //return data to builder
-              return btService.bass;
-            },
-            ),
-            ),
-
-          ],
+          children: _listTitle.asMap().keys.map((f)=>  _item(_listTitle[f], f)).toList(),
+          ),
         ),
+        Container(
+          height: Global.tabHeight,
+          child:FlatButton(
+            color: Colors.white,
+            highlightColor: Global.appGreen,
+            //colorBrightness: Brightness.dark,
+            //splashColor: Colors.grey,
+            child: Text( MyLocalizations.of(Global.context).getText('Reset'), style: Global.floatHzTextStyle),
+            shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+            onPressed: () {
+              bluetoothService.instance.resetButtonFunction();
+            },
+          )
+        ),
+      ]
     );
   }
-}
-
-class ConfigsPageGuide extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() => new _ConfigsPageStateGuide();
-}
-
-class _ConfigsPageStateGuide extends State<ConfigsPageGuide> {
-  bool check = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    print('initState  ' + this.toString());
-  }
-  @override
-  void dispose() {
-    print('dispose  ' + this.toString());
-    super.dispose();
+  /*Volume down	  PP/HC/AC	    PREV SONG/RC	Volume up	    PP/HC/AC	    Next Song/RC
+    PREV SONG/RC	Volume down	  Volume down	  Next Song/RC	Volume up	    Volume up
+    PP/HC/AC	    PREV SONG/RC	PP/HC/AC	    PP/HC/AC	    Next Song/RC	PP/HC/AC*/
+                                     /*'Left tap',  'Left double-tap', 'Left hold', 'Right double-tap', 'Right Tap2', 'Right hold'];*/
+  static List<String> _listContent = ['Volume down', 'PP/HC/AC', 'PREV SONG/RC', 'Volume up', 'PP/HC/AC', 'Next Song/RC',
+                                      'PREV SONG/RC', 'Volume down', 'Volume down', 'Next Song/RC', 'Volume up', 'Volume up',
+                                      'PP/HC/AC', 'PREV SONG/RC', 'PP/HC/AC', 'PP/HC/AC', 'Next Song/RC', 'PP/HC/AC',];
+  String _getString(int index, int value)
+  {
+    return _listContent[value*6+index];
   }
 
-  @override
-  Widget build(BuildContext context) {
-    print("build " + this.toString());
-    return new Container(
-      padding: EdgeInsets.all(Global.bodyPadding),
-      child: Column(
-
+  Widget _item(String title, int val)
+  {
+    return Container(
+      height: Global.tabHeight*1.2,
+      child: Row(
         children: <Widget>[
-          Container(
-            height: Global.titleHeight,
-            child: Text(
-              MyLocalizations.of(Global.context).getText('Audio_Enhance'),
-              style: TextStyle(color: Colors.white, fontSize: Global.fontSizeTitle), // Theme.of(context).textTheme.headline3,
-              textAlign: TextAlign.center,
-            ),
+          SizedBox(child: Text( title+' :', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.3),
+          SizedBox( width: Global.columnPadding),
+          Expanded(
+            child: Selector(builder:  (BuildContext context, int data, Widget child) {
+              print('InfoPageState rebuild............'+val.toString());
+               return DropdownButtonHideUnderline(
+                 child: DropdownButton(
+                   items: <DropdownMenuItem<int>>[
+                     DropdownMenuItem(child: Text(_getString(val,0)/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.grey),),value: 0,),
+                     DropdownMenuItem(child: Text(_getString(val,1)/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.grey),),value: 1,),
+                     DropdownMenuItem(child: Text(_getString(val,2)/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.grey),),value: 2,),
+                     /*DropdownMenuItem(child: Text(*//*"PP/HC/AC"*//*"~3~",style: TextStyle(color: data==3?Global.appGreen:Colors.grey),),value: 3,),*/
+                   ],
+                   onChanged: (selectValue){
+                     bluetoothService.instance.setButtonFunction(val, selectValue);
+                     },
+                   value: data,
+                   //elevation: 10,
+                   //  iconSize: 30,//
+                  ),
+                 );
+               }, selector: (BuildContext context, bluetoothService btService) {
+              //return data to builder
+              return btService.buttonFunction[val];
+            },),
           ),
-          Container(
-            height: Global.contentHeight,
-            child: Text(
-              MyLocalizations.of(Global.context).getText('enhance_content'),
-              style: TextStyle(color: Colors.grey, fontSize: Global.fontSizeInfo), // Theme.of(context).textTheme.headline3,
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          Container(
-            height: Global.contentHeight,
-            child: Image.asset((check ?'assets/images/enhance_1.png' : 'assets/images/enhance_0.png'), height: Global.imageHeight, width: Global.imageWidth),
-          ),
-
-          Container(
-              height: Global.buttonHeight,
-              child: new CupertinoSwitch(
-                value: this.check,
-                activeColor: Color.fromARGB(255, 236, 27, 35), //Colors.red,     // 激活时原点颜色
-                //focusColor: Colors.green,
-                trackColor: Color.fromARGB(255, 13, 252, 6),
-                onChanged: (bool val) {
-                },
-              )
-          ),
-
         ],
       ),
     );

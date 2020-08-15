@@ -4,16 +4,14 @@ import 'package:Tour/utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-//import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:Tour/utils/const.dart';
-//import 'package:Tour/utils/myI18nWidget.dart';
 import 'package:Tour/utils/myLocalizations.dart';
-//import 'package:Tour/utils/myLocalizationsDelegate.dart';
 import 'package:Tour/view/settings.dart';
 import 'package:Tour/view/equalize.dart';
 import 'package:Tour/view/update.dart';
 import 'package:Tour/view/info.dart';
+import 'package:Tour/view/config.dart';
 
 import '../utils/const.dart';
 import 'navigation_icon_view.dart';
@@ -26,8 +24,7 @@ class Index extends StatefulWidget {
   @override
   State<StatefulWidget> createState()  => new _IndexState();
 }
-//GlobalKey<MyI18nWidgetState> myI18nWidgetStateKey=GlobalKey<MyI18nWidgetState>();
-//
+
 class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBindingObserver{
 
   int _currentIndex = 0;    //
@@ -37,7 +34,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = 'none';
-  String _address = '';
   int _step = 1;
   bluetoothService _btService = new bluetoothService();
 
@@ -51,23 +47,19 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
-      // went to Background
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.paused');
-      //bluetoothService.dispose();
+      if(_currentIndex == 3)
+        _btService.getInfo();
     }
     else if (state == AppLifecycleState.resumed) {
-      //bluetoothService.initial();
-      // came back to Foreground
-      _getDevice();
-      setState((){});
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.resumed');
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
+    //_btService.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -78,29 +70,11 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     print(this.toString());
     WidgetsBinding.instance.addObserver(this);
     _btService.initial();
-    _getDevice();
-    //bluetoothService.initial();
-    /*setState(() {
-    });*/
-  }
-
-  Future<Null> _getDevice() async {
-    try {
-      var result = await platform.invokeMethod('native_get_current_device');
-      Map<String, String> res = new Map<String, String>.from(result);
-      _model = res['Model'];
-      _address = res['Address'];
-      if(!_model.contains('Fender') ) {
-        print("no device connected");
-        //TODO connect devices
-        _connectDevice();
-      }
-      setState((){});
-    } on PlatformException catch (e) {
-      print("failed to get devices "+e.toString());
-    }
+    _btService.setDeviceCallback( _connectDevice);
+    _btService.getDevice();
 
   }
+
   Future<Null> _connectDevice() async {
     bool delete = await _showConnectBtConfirmDialog();
     if (delete == null) {
@@ -113,7 +87,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     }
   }
 
-  //
   Future<bool> _showConnectBtConfirmDialog() {
 
     return showDialog<bool>(
@@ -159,6 +132,9 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.grey),
           activeIcon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
           title: new Text(MyLocalizations.of(context).getText('INFO')), vsync: this),
+      new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.grey),
+          activeIcon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
+          title: new Text(MyLocalizations.of(context).getText('SETTING')), vsync: this),
     ];
 
     //
@@ -171,7 +147,8 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       new ConfigsPage(),
       new EqualizePage(),
       new UpdatePage(),
-      new InfoPage()
+      new InfoPage(),
+      new SettingPage(),
     ];
     _currentPage = _pageList[_currentIndex];
   }
@@ -189,7 +166,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
         onPointerUp: (e){
           _step++;
           print('`````````onPointerUp --' + _currentIndex.toString() + ' _step = ' +_step.toString());
-          if((_step > 2 && _currentIndex  <= 1) || (_step >3 && _currentIndex  == 2) || (_step >1 && _currentIndex  == 3)) {
+          if((_step > 2 && _currentIndex  <= 1) || (_step >3 && _currentIndex  == 2) || (_step >1 && _currentIndex  == 3)|| (_step >1 && _currentIndex  == 4)) {
             Global.saveFirstRun(Global.appGuide|(1<< _currentIndex));
             _step = 1;
           }
@@ -234,6 +211,9 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       },
     );
 
+    print('_getMainUI --------- _btService = '+_btService.toString() );
+    _btService.initial();
+
     return new MaterialApp(
       home: ChangeNotifierProvider(
         create: (context) => _btService,
@@ -255,7 +235,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
                       //color: Colors.red[400],
                     ),
                     Selector(builder:  (BuildContext context, String data, Widget child) {
-                      print('model rebuild 11');
+                      print('model rebuild model ');
                       return Text(data, style: Global.titleTextStyle1/*TextStyle(color: Colors.white, fontSize: 20)*/);
                     }, selector: (BuildContext context, bluetoothService btService) {
                       //return data to builder
@@ -443,7 +423,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       return _step == 1 ?
       Positioned(
         bottom: Global.bottomViewHeight*(_step-1),
-        left: Global.columnPadding*2+ (Global.appWidth /4)*_currentIndex,
+        left: Global.columnPadding*2+ (Global.appWidth /5)*_currentIndex,
         child: Container( child: Text('') , decoration: new BoxDecoration(
           color: Color.fromARGB(55, 128, 128, 128),
           borderRadius: BorderRadius.all(Radius.circular(65.0)),
@@ -466,7 +446,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       return _step == 1 ?
       Positioned(
         bottom: Global.bottomViewHeight*(_step-1),
-        left: Global.columnPadding*2 + (Global.appWidth /4)*_currentIndex,
+        left: Global.columnPadding*2 + (Global.appWidth /5)*_currentIndex,
         child: Container( child: Text('') , decoration: new BoxDecoration(
           color: Color.fromARGB(55, 128, 128, 128),
           borderRadius: BorderRadius.all(Radius.elliptical(Global.bottomViewWidth,  Global.bottomViewHeight)),
@@ -488,7 +468,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     else {
       return Positioned(
         bottom: Global.bottomViewHeight*(_step-1),
-        left: Global.columnPadding*2 + (Global.appWidth /4)*_currentIndex,
+        left: Global.columnPadding*2 + (Global.appWidth /5)*_currentIndex,
         child: Container( child: Text('') , decoration: new BoxDecoration(
           color: Color.fromARGB(55, 128, 128, 128),
           borderRadius: BorderRadius.all(Radius.elliptical(Global.bottomViewWidth,  Global.bottomViewHeight)),

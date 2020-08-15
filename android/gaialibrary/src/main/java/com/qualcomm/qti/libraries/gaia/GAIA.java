@@ -559,7 +559,9 @@ public final class GAIA {
     /**
      * <p>Requests the logic state of the chip PIOs.</p>
      */
-    public static final int COMMAND_GET_PIO_STATE = 0x0306;
+    //public static final int COMMAND_GET_PIO_STATE = 0x0306;
+    public static final int COMMAND_BUTTON_SET = 0x0305;
+    public static final int COMMAND_BUTTON_GET = 0x0306;
     /**
      * <p>Requests the value read by a given analogue-to-digital converter.</p>
      */

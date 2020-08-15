@@ -15,6 +15,7 @@ class _InfoPageState extends State<InfoPage> {
   @override
   void initState() {
     super.initState();
+    bluetoothService.instance.getInfo();
   }
   @override
   void dispose() {

@@ -51,7 +51,6 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     } on PlatformException catch (e) {
       print("failed to _getPreset "+e.toString());
     }
-    //_listContent['Model'] = _result;
   }
 
   void _getPresetActive() {
@@ -60,7 +59,6 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     } on PlatformException catch (e) {
       print("failed to _getPresetActive "+e.toString());
     }
-    //_listContent['Model'] = _result;
   }
 
   void _setPreset(int bank) {
@@ -300,11 +298,9 @@ class _EqualizeViewState extends State<EqualizeView> {
                           if(widget.type.contains('Sezto')) {
                             widget.listGain[f] = value;
                             setState(() {
-
                             });
                           }
                         },
-
                         onChangeEnd: (double newValue) {
                           if(widget.type.contains('Sezto')) {
                             _EqualizePageState.setCustomEq(f, newValue.toInt());
@@ -313,7 +309,8 @@ class _EqualizeViewState extends State<EqualizeView> {
 
                         },
                         ),
-                  )
+                  ),
+                widget.type.contains('Sezto')? SizedBox(child: Text(widget.listGain[f].toString()+'db', style: Global.eqHzTextStyle,), width: Global.eqItemValueWidth): Text(''),
                 ],
             )
             )).toList(),
