@@ -11,7 +11,7 @@ class InfoPage extends StatefulWidget{
 }
 
 class _InfoPageState extends State<InfoPage> {
-  final List<String> _listTitle = ['Model', 'Address','Battery','Box battery','Status','Signal','Firmware','App_Version'];
+  final List<String> _listTitle = ['Model', /*'Address',*/'Battery',/*'Box battery','Status','Signal',*/'Firmware','Box battery','App_Version'];
   @override
   void initState() {
     super.initState();
@@ -30,11 +30,11 @@ class _InfoPageState extends State<InfoPage> {
       child: Column(
         children: _listTitle.asMap().keys.map((f)=>
             Container(
-                height: Global.tabHeight,
+                height: Global.tabHeight*1.3,
                 child: Row(
                   children: <Widget>[
-                    SizedBox(child: Text(MyLocalizations.of(Global.context).getText(_listTitle[f])+':', style: Global.contentTextStyle), width:Global.infoItemTitleWidth),
-                    SizedBox( width: Global.columnPadding),
+                    SizedBox(child: Text(MyLocalizations.of(Global.context).getText(_listTitle[f])+':', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.2,),
+                    SizedBox( width: Global.columnPadding, ),
                     Expanded(
                       child: Selector(builder:  (BuildContext context, String data, Widget child) {
                         print('InfoPageState rebuild............'+f.toString());
@@ -45,17 +45,14 @@ class _InfoPageState extends State<InfoPage> {
                           case 0:
                             return btService.model;
                           case 1:
-                            return btService.address;
+                            return btService.battery+'%';
+                          //case 2:
+                            //return btService.status;
+                            //return btService.boxBattery;
                           case 2:
-                            return btService.battery;
+                            return btService.firmware;
                           case 3:
                             return btService.boxBattery;
-                          case 4:
-                            return btService.status;
-                          case 5:
-                            return btService.signal;
-                          case 6:
-                            return btService.firmware;
                           default:
                             return btService.appVersion;
                         }

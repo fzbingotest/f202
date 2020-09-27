@@ -1,3 +1,4 @@
+import 'package:Tour/index/guide.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]).then((_){
+    SystemChrome.setEnabledSystemUIOverlays ([]);
     Global.init().then((value) => runApp(MyApp()));
 
   });
@@ -50,7 +52,16 @@ class MyApp extends StatelessWidget {
         const FallbackCupertinoLocalisationsDelegate(),
       ],
       //title: 'Flutter Demo',
-      theme: ThemeData(
+        theme: ThemeData(
+          primaryColor: Color.fromARGB(255,52,52,52),
+          canvasColor: Color.fromARGB(255,52,52,52),
+          brightness: Brightness.dark,
+          // This makes the visual density adapt to the platform that you run
+          // the app on. For desktop platforms, the controls will be smaller and
+          // closer together (more dense) than on mobile platforms.
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        /*theme: ThemeData(
         // This is the theme of your application.
         //
         // Try running your application with "flutter run". You'll see the
@@ -68,15 +79,35 @@ class MyApp extends StatelessWidget {
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      ),*/
       home: MyI18nWidget(
-    key: myI18nWidgetStateKey,
-    child:  new Index(),// MyHomePage(title: 'FENDER'),
+        key: myI18nWidgetStateKey,
+        child:  new FirstPage(),// MyHomePage(title: 'FENDER'),
       )
     );
   }
 }
 
+class FirstPage extends StatefulWidget {
+  @override
+  _FirstPageState createState() => new _FirstPageState();
+}
+
+class _FirstPageState extends State<FirstPage> {
+  bool _guide = true;
+  @override
+  Widget build(BuildContext context) {
+    if(Global.appGuide < 5 && _guide)
+    {
+      Future.delayed(Duration(microseconds: 500), () {
+        Navigator.push(
+            context, new MaterialPageRoute(builder: (context) => new Guide()));
+      });
+      _guide = false;
+    }
+    return new Index();
+  }
+}
 
 class FallbackCupertinoLocalisationsDelegate
     extends LocalizationsDelegate<CupertinoLocalizations> {

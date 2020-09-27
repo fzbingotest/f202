@@ -18,13 +18,17 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   TabController _tabController;
   List<Widget> _eqList;
   Color _resetColor = Colors.white;
-  final List<double> _fenderList     = [7,3,2,2,1,4,11];
+  final List<double> _rockList     = [1,2,3,4,-1,-2,1];
   final List<double> _seztoList   = [0,0,0,0,0,0,0];
-  final List<double> _electronicList = [9,3,5,-6,-4,5,3];
-  final List<double> _classicList    = [-6,-1,-4,2,-3,0,9];
-  final List<double> _femaleList    = [-2,-2,5,4,5,-2,-5];
-  final List<double> _monitorList   = [-4,-3,4,1,3,6,8];
-  final List<double> _maleList   = [4,2,4,1,0,-2,-5];
+  final List<double> _electronicList = [-1,3,3,1,2,3,2];
+  //final List<double> _classicList    = [-1,2,2,2,2,3,1];
+  final List<double> _classicList    = [1,2,2,2,2,2,1];
+  final List<double> _femaleList    = [0,0,1,1,2,1,3];
+  //final List<double> _monitorList   = [-1,-3,2,1,1,0,0];
+  //final List<double> _jazzList   = [-3,-1,0,1,0,-1,-3];
+  final List<double> _jazzList   = [-3,-1,1,1,0,-1,-1];
+  //final List<double> _maleList   = [2,3,3,-2,-3,-4,-3];
+  final List<double> _maleList   = [2,3,2,0,-1,-1,-2];
   final List<double> _customizeList   = [0,0,0,0,0,0,0];
   static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
@@ -34,13 +38,13 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   {
     _eqList =  <StatefulWidget>[
       new EqualizeView(type: 'Normal', listGain: _customizeList),
-      new EqualizeView(type: 'Fender', listGain: _fenderList),
-      new EqualizeView(type: 'Sezto', listGain: _seztoList),
       new EqualizeView(type: 'Electronic', listGain: _electronicList),
       new EqualizeView(type: 'Classical', listGain: _classicList),
       new EqualizeView(type: 'Female Vocals', listGain: _femaleList),
-      new EqualizeView(type: 'Monitor', listGain: _monitorList),
+      new EqualizeView(type: 'Rock', listGain: _rockList),
       new EqualizeView(type: 'Male Vocals', listGain: _maleList),
+      new EqualizeView(type: 'Jazz', listGain: _jazzList),
+      new EqualizeView(type: 'Sezto', listGain: _seztoList),
 //      new EqualizeView(type: 'Customize', listGain: _customizeList),
     ];
   }
@@ -110,9 +114,17 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     else {
       if(!_presetActive)
         _setPresetActive(true);
-      _setPreset(_tabController.index-1);
-      if(_preset == 2){
+      //_setPreset(_tabController.index-1);
+      if(_preset == 7){
+        _setPreset(1);
         _getCustomEq();
+      }
+      else if(_preset == 1)
+      {
+        _setPreset(0);
+      }
+      else {
+        _setPreset(_preset);
       }
     }
   }
@@ -157,15 +169,24 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   }
 
   bool _keyValid(int key) => (key>=-12 && key<=12);
+  int _bank2UI(int bank)
+  {
+    if(bank == 1)
+      return 7;
+    else if(bank == 0)
+      return 1;
+    else
+      return bank;
+  }
 
   void _onEvent(Object event) {
     print("EQ _onEvent _result ---->"+ event.toString());
     Map<String, int> res = new Map<String, int>.from(event);
     if(res['key'] == 0)
     {
-      _preset = res['bank'];
+      _preset = _bank2UI(res['bank']);
       if(_presetActive)
-      _tabController.animateTo(_preset+1);
+      _tabController.animateTo(_preset);
       setState(() {});
     }
     else if(res['key'] == 1)
@@ -201,7 +222,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   {
     return Tab(
         child: Container(
-        width: Global.tabImgWidth,//ScreenUtil().setWidth(350),
+        //width: Global.tabImgWidth,//ScreenUtil().setWidth(350),
         height: Global.tabImgHeight,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -209,7 +230,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
         ),
         child: Align(
           alignment: Alignment.center,
-          child: Text(title, style:Global.contentTextStyle),
+          child: Text(title, style:Global.eqHzTextStyle),
         ),
       ),
     );
@@ -235,13 +256,13 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
                 isScrollable:true,
                 tabs: <Widget>[
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Normal')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Fender')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Jazz')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Electronic')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Classical')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Female_Vocals')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Monitor')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Rock')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Male_Vocals')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
                   //_buildTabItem("Customize"),
                 ],
                 controller: _tabController,  // 记得要带上tabController
@@ -409,12 +430,12 @@ class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTicke
                 isScrollable:true,
                 tabs: <Widget>[
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Normal')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Fender')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Jazz')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Electronic')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Classical')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Female_Vocals')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Monitor')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Rock')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Male_Vocals')),
                   //_buildTabItem("Customize"),
                 ],

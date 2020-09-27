@@ -10,6 +10,7 @@ import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/httpControl.dart';
 import 'package:Tour/utils/myLocalizations.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:Tour/utils/bluetoothService.dart';
 
 class UpdatePage extends StatefulWidget{
   @override
@@ -18,7 +19,8 @@ class UpdatePage extends StatefulWidget{
 
 class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateMixin  {
   String _version;
-  String _currentVersion = '';
+  String _currentVersion = '0.0.0';
+  String _peerVersion = '';
   String _url = 'abc';
   String _updateInfo;
   double _step = 0.00;
@@ -81,7 +83,19 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       {
         _currentVersion = res['Firmware'];
         print('version check = ' + _version + ':' + _currentVersion + " = " + _version.compareTo(_currentVersion).toString());
+        if(res['Box battery']!=null)
+          {
+            _peerVersion = res['Box battery'];
+            print('peer version check = ' + _version + ':' + _peerVersion + " = " + _version.compareTo(_peerVersion).toString());
+          }
       }
+    else if(res['progress']!=null )
+    {
+      _animationController.value = (0.05+ (double.parse(res['progress'])*0.65)/100);
+      print('progress _step = ' + _step.toString() + ' -- ' + res['progress']);
+      if(_animationController.value > 0.695)
+        _animationController.forward();
+    }
     else{
       _step = 0.0;
       _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
@@ -122,12 +136,13 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     bool delete = await _showConnectBtConfirmDialog();
     if (delete == null) {
       print("NO");
-      exit(0);
+      //exit(0);
     } else {
       print("Yes");
-      platform.invokeMethod('native_go_to_setting');
-      exit(0);
+      //platform.invokeMethod('native_go_to_setting');
+      //exit(0);
     }
+    bluetoothService.instance.finishUpdate();
   }
 
   Future<Null> _updateConfirm() async {
@@ -158,7 +173,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     //_animationController.forward();
     Fluttertoast.cancel();
     Fluttertoast.showToast(
-        msg: 'Firmware is up to date!',
+        msg: MyLocalizations.of(Global.context).getText('firmware_updated'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
@@ -177,10 +192,10 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           title: Text(MyLocalizations.of(context).getText('Done')),
           content: Text(MyLocalizations.of(context).getText('update_ok')),
           actions: <Widget>[
-            CupertinoDialogAction(
+            /*CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('No')),
               onPressed: () => Navigator.of(context).pop(), // 关闭对话框
-            ),
+            ),*/
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('OK')),
               onPressed: () {
@@ -194,14 +209,47 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     );
   }
 
+  Widget getUpdateGuide()
+  {
+    return Column(
+      children: <Widget>[
+       /* Container(
+          child: Text(MyLocalizations.of(Global.context).getText('UPGRADE'), style: Global.titleTextStyle1),
+        ),*/
+        SizedBox( height : Global.tabImgHeight ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test1'), style: Global.subtitleTextStyle1, textAlign: TextAlign.left,),
+        ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2'), style: Global.eqHzTextStyle),
+        ),
+        SizedBox( height : Global.tabImgHeight ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test3'), style: Global.subtitleTextStyle1, textAlign: TextAlign.left,),
+        ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test4'), style: Global.eqHzTextStyle),
+        ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test5'), style: Global.eqHzTextStyle),
+        ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test6'), style: Global.eqHzTextStyle),
+        ),
+      ],
+    );
+  }
+
   Future<bool> _showUpdateConfirmDialog() {
     //print("index build + " + context.toString());
     return showDialog<bool>(
       context: context,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: Text(MyLocalizations.of(context).getText('Warning')),
-          content: Text(MyLocalizations.of(context).getText('Update_confirm')),
+          title: Text(MyLocalizations.of(Global.context).getText('UPGRADE'), style: Global.titleTextStyle1),/*Text(MyLocalizations.of(context).getText('Warning')),*/
+          content: getUpdateGuide()/*Text(MyLocalizations.of(context).getText('Update_confirm'))*/,
           actions: <Widget>[
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('Cancel')),
@@ -298,7 +346,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
+                if(!_isUpdating && _currentVersion.compareTo(_version)!=0 && _currentVersion.compareTo('0.0.0') !=0)
                   _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();

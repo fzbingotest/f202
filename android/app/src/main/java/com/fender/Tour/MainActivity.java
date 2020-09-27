@@ -156,6 +156,13 @@ public class MainActivity extends FlutterActivity
 
                             result.success(res);
                             break;
+                        case "native_check_current_device":
+                            if (mService != null) {
+                                //rmInformationFromDevice();
+                                mService.removeHandler(mHandler);
+                                mService = null;
+                                unbindService(mServiceConnection);
+                            }
                         case "native_get_bt_device":
                         case "native_get_current_device":
                             getConnectedBtDevice(result);
@@ -350,12 +357,20 @@ public class MainActivity extends FlutterActivity
                     boolean isConnected = (boolean) isConnectedMethod.invoke(device, (Object[]) null);
                     if(isConnected){ //根据状态来区分是已连接的还是已绑定的，isConnected为true表示是已连接状态。
                         Log.i("BLUETOOTH-dh","connected:"+device.getName());
-                        Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
-                        batteryMethod.setAccessible(true);
-                        int battery = (int) batteryMethod.invoke(device, (Object[]) null);
-                        Log.i(TAG,"Battery:"+battery);
-                        //start bdr
-                        mBatteryLevel = battery;
+                        try {
+                            Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
+                            batteryMethod.setAccessible(true);
+                            int battery = (int) batteryMethod.invoke(device, (Object[]) null);
+                            Log.i(TAG, "Battery:" + battery);
+                            //start bdr
+                            mBatteryLevel = battery;
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                            mBatteryLevel = 50;
+                        }
+
                         start_bdr_devices(device);
                         mMap.put("Model", device.getName());
                         mMap.put("Address",device.getAddress());
@@ -565,6 +580,8 @@ public class MainActivity extends FlutterActivity
                     mainMap.put("value", "finish");
                     mainEventSink.success(mainMap);
                 }
+                //mService.disconnectDevice();
+                //mService = null;
                 break;
 
             case BluetoothService.UpgradeMessage.UPGRADE_REQUEST_CONFIRMATION:
@@ -612,6 +629,12 @@ public class MainActivity extends FlutterActivity
 
             case BluetoothService.UpgradeMessage.UPGRADE_UPLOAD_PROGRESS:
                 double percentage = (double) content;
+                Log.i(TAG, " onReceiveUpgradeMessage percentage " +  percentage);
+                map.put("progress", String.valueOf(percentage));
+
+                if(updateEventSink != null)
+                    updateEventSink.success(map);
+
 
                 handleMessage.append("UPGRADE_UPLOAD_PROGRESS");
                 break;
@@ -1182,13 +1205,13 @@ public class MainActivity extends FlutterActivity
     @Override
     public void onGetAPPVersion(int versionPart1, int versionPart2, int versionPart3, int versionPart4) {
         String APPText = versionPart1 + "." + versionPart2 ;
-        String BoxText = ""+versionPart3 ;
+        String BoxText = versionPart3 + "." + versionPart4 ;
         Map<String, String> map = new HashMap<>();
         map.put("Firmware", APPText );
-        if(updateEventSink!= null)
-            updateEventSink.success(map);
         map.put("Box battery", BoxText );
         Log.i(TAG, " onGetAPPVersion = " + map.toString());
+        if(updateEventSink!= null)
+            updateEventSink.success(map);
         if(eventSink != null)
             eventSink.success(map);
         if(mainEventSink != null)
@@ -1240,7 +1263,7 @@ public class MainActivity extends FlutterActivity
                 && mService.isGaiaReady()) {
             mGaiaManager.getInformation(InformationGaiaManager.Information.API_VERSION);
             mGaiaManager.getNotifications(InformationGaiaManager.Information.BATTERY, true);
-            mGaiaManager.getNotifications(InformationGaiaManager.Information.RSSI, true);
+            mGaiaManager.getNotifications(InformationGaiaManager.Information.RSSI, false);
             mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
         }
     }

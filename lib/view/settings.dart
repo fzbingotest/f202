@@ -57,9 +57,9 @@ class _SettingPageState extends State<SettingPage> {
     PREV SONG/RC	Volume down	  Volume down	  Next Song/RC	Volume up	    Volume up
     PP/HC/AC	    PREV SONG/RC	PP/HC/AC	    PP/HC/AC	    Next Song/RC	PP/HC/AC*/
                                      /*'Left tap',  'Left double-tap', 'Left hold', 'Right double-tap', 'Right Tap2', 'Right hold'];*/
-  static List<String> _listContent = ['Volume down', 'PP/HC/AC', 'PREV SONG/RC', 'Volume up', 'PP/HC/AC', 'Next Song/RC',
-                                      'PREV SONG/RC', 'Volume down', 'Volume down', 'Next Song/RC', 'Volume up', 'Volume up',
-                                      'PP/HC/AC', 'PREV SONG/RC', 'PP/HC/AC', 'PP/HC/AC', 'Next Song/RC', 'PP/HC/AC',];
+  static List<String> _listContent = ['Volume down', 'Play/Pause', 'PREV SONG', 'Volume up', 'Play/Pause', 'Next Song',
+                                      'PREV SONG', 'Volume down', 'Volume down', 'Next Song', 'Volume up', 'Volume up',
+                                      'Play/Pause', 'PREV SONG', 'Play/Pause', 'Play/Pause', 'Next Song', 'Play/Pause',];
   String _getString(int index, int value)
   {
     return _listContent[value*6+index];
@@ -71,7 +71,7 @@ class _SettingPageState extends State<SettingPage> {
       height: Global.tabHeight*1.2,
       child: Row(
         children: <Widget>[
-          SizedBox(child: Text( title+' :', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.3),
+          SizedBox(child: Text( MyLocalizations.of(Global.context).getText(title)+' :', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.5),
           SizedBox( width: Global.columnPadding),
           Expanded(
             child: Selector(builder:  (BuildContext context, int data, Widget child) {
@@ -79,10 +79,10 @@ class _SettingPageState extends State<SettingPage> {
                return DropdownButtonHideUnderline(
                  child: DropdownButton(
                    items: <DropdownMenuItem<int>>[
-                     DropdownMenuItem(child: Text(_getString(val,0)/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.grey),),value: 0,),
-                     DropdownMenuItem(child: Text(_getString(val,1)/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.grey),),value: 1,),
-                     DropdownMenuItem(child: Text(_getString(val,2)/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.grey),),value: 2,),
-                     /*DropdownMenuItem(child: Text(*//*"PP/HC/AC"*//*"~3~",style: TextStyle(color: data==3?Global.appGreen:Colors.grey),),value: 3,),*/
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,0))/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.grey),),value: 0,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,1))/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.grey),),value: 1,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,2))/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.grey),),value: 2,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText('None')/*"~3~"*/,style: TextStyle(color: data==3?Global.appGreen:Colors.grey),),value: 3,),
                    ],
                    onChanged: (selectValue){
                      bluetoothService.instance.setButtonFunction(val, selectValue);

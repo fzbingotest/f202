@@ -44,7 +44,7 @@ public class InformationGaiaManager extends AGaiaManager {
     /**
      * This time is used to delay a runnable in order to run the custom notifications.
      */
-    private static final int DELAY_CUSTOM_NOTIFICATION = 20000;
+    private static final int DELAY_CUSTOM_NOTIFICATION = 60000;
 
     /**
      * <p>To represent the boolean value <code>true</code> as a payload of one parameter for GAIA commands.</p>
