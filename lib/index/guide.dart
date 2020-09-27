@@ -145,7 +145,13 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             SizedBox( height : Global.tabImgHeight ),
             Container(
               child: PreferredSize(
-                child: Image.asset('assets/images/pairing0.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                child: Row(
+                  children: <Widget>[
+                    Image.asset('assets/images/pairing0.png', height: Global.bottomLogoHeight*1.8, /*width: Global.appWidth*/),
+                    SizedBox( width: Global.columnPadding*10, ),
+                    Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*1.8, /*width: Global.appWidth*/),
+                  ]
+                ),
                 preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
               ),
             ),
@@ -153,13 +159,13 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             Container(
               child: Text(MyLocalizations.of(Global.context).getText('pairing_text1'), style: Global.contentTextStyle),
             ),
-            SizedBox( height : Global.tabImgHeight ),
+            /*SizedBox( height : Global.tabImgHeight ),
             Container(
               child: PreferredSize(
                 child: Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
                 preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
               ),
-            ),
+            ),*/
           ],
         );
       case 3:
