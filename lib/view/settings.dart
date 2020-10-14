@@ -78,11 +78,13 @@ class _SettingPageState extends State<SettingPage> {
               print('InfoPageState rebuild............'+val.toString());
                return DropdownButtonHideUnderline(
                  child: DropdownButton(
+                     dropdownColor:Colors.grey,
+                     focusColor:Colors.red,
                    items: <DropdownMenuItem<int>>[
-                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,0))/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.grey),),value: 0,),
-                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,1))/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.grey),),value: 1,),
-                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,2))/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.grey),),value: 2,),
-                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText('None')/*"~3~"*/,style: TextStyle(color: data==3?Global.appGreen:Colors.grey),),value: 3,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,0))/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.white),),value: 0,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,1))/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.white),),value: 1,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,2))/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.white),),value: 2,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText('None')/*"~3~"*/,style: TextStyle(color: data==3?Global.appGreen:Colors.white),),value: 3,),
                    ],
                    onChanged: (selectValue){
                      bluetoothService.instance.setButtonFunction(val, selectValue);

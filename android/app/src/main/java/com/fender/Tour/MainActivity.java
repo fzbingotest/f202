@@ -822,7 +822,8 @@ public class MainActivity extends FlutterActivity
 
             case BluetoothService.Messages.GAIA_READY:
                 //getInformationFromDevice();
-                getStatusFromDevice();
+                if(isUploaded != 1)
+                    getStatusFromDevice();
                 if (DEBUG) Log.d(TAG, handleMessage + "GAIA_READY");
                 break;
 

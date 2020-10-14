@@ -8,6 +8,7 @@ class Global {
   static int firstRun;
   static bool _isScreenInit = false;
   static BuildContext appContext;
+  static int guideSteps = 7;
 
   // 是否为release版
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
@@ -86,6 +87,8 @@ class Global {
   static TextStyle get subtitleTextStyle1 => TextStyle(color: Colors.white, fontSize: ScreenUtil().setSp(72));
   static TextStyle get titleTextStyle1 => TextStyle(color: Colors.white, fontSize: ScreenUtil().setSp(96));
   static TextStyle get eqHzTextStyle => TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60));
+  static TextStyle get eqHintTextStyle => TextStyle(color: Colors.lightGreenAccent, fontSize: ScreenUtil().setSp(50));
+  static TextStyle get guideButtonTextStyle => TextStyle(color: Color.fromARGB(255, 32, 216, 255), fontSize: ScreenUtil().setSp(50));
   static TextStyle get floatHzTextStyle => TextStyle(color: Colors.black87, fontSize: ScreenUtil().setSp(72), fontWeight: FontWeight.normal, decoration: TextDecoration.none);
   static Color     get appRed => Color.fromARGB(255, 236, 27, 35);
   static Color     get appGreen => Color.fromARGB(255, 13, 252, 6);

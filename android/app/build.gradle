@@ -61,11 +61,13 @@ android {
 }
 
 dependencies {
+    def billing_version = "3.0.0"
     implementation project(':blelibrary')
     implementation project(':gaialibrary')
     implementation project(':vmupgradelibrary')
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation "com.android.billingclient:billing:$billing_version"
 }
 flutter {
     source '../..'

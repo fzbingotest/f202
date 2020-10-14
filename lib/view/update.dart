@@ -212,6 +212,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   Widget getUpdateGuide()
   {
     return Column(
+      crossAxisAlignment:CrossAxisAlignment.start,
       children: <Widget>[
        /* Container(
           child: Text(MyLocalizations.of(Global.context).getText('UPGRADE'), style: Global.titleTextStyle1),
@@ -219,24 +220,64 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         SizedBox( height : Global.tabImgHeight ),
         SizedBox(
           width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test0'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
           child: Text(MyLocalizations.of(Global.context).getText('upgrade_test1'), style: Global.subtitleTextStyle1, textAlign: TextAlign.left,),
         ),
-        Container(
-          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2'), style: Global.eqHzTextStyle),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2.2'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2.3'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        SizedBox(
+          width: Global.appWidth- (Global.bodyPadding*2),
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test2.4'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
         ),
         SizedBox( height : Global.tabImgHeight ),
         SizedBox(
           width: Global.appWidth- (Global.bodyPadding*2),
           child: Text(MyLocalizations.of(Global.context).getText('upgrade_test3'), style: Global.subtitleTextStyle1, textAlign: TextAlign.left,),
         ),
+        SizedBox( height : Global.tabImgHeight/4 ),
         Container(
-          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test4'), style: Global.eqHzTextStyle),
+          alignment: Alignment.bottomLeft,
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test4'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
         ),
+        SizedBox( height : Global.tabImgHeight/4 ),
         Container(
-          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test5'), style: Global.eqHzTextStyle),
+          alignment: Alignment.bottomLeft,
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test4.2'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
         ),
+        SizedBox( height : Global.tabImgHeight/4 ),
         Container(
-          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test6'), style: Global.eqHzTextStyle),
+          alignment: Alignment.bottomLeft,
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test4.3'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test5'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test6'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
+        ),
+        SizedBox( height : Global.tabImgHeight/4 ),
+        Container(
+          child: Text(MyLocalizations.of(Global.context).getText('upgrade_test6.6'), style: Global.eqHzTextStyle, textAlign: TextAlign.left,),
         ),
       ],
     );

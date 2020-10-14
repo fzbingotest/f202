@@ -38,12 +38,12 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   {
     _eqList =  <StatefulWidget>[
       new EqualizeView(type: 'Normal', listGain: _customizeList),
+      new EqualizeView(type: 'Jazz', listGain: _jazzList),
       new EqualizeView(type: 'Electronic', listGain: _electronicList),
       new EqualizeView(type: 'Classical', listGain: _classicList),
       new EqualizeView(type: 'Female Vocals', listGain: _femaleList),
       new EqualizeView(type: 'Rock', listGain: _rockList),
       new EqualizeView(type: 'Male Vocals', listGain: _maleList),
-      new EqualizeView(type: 'Jazz', listGain: _jazzList),
       new EqualizeView(type: 'Sezto', listGain: _seztoList),
 //      new EqualizeView(type: 'Customize', listGain: _customizeList),
     ];
@@ -103,18 +103,27 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   }
 
   void onTabChange(){
-    print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString());
-    if(_tabController.index == _preset)
+    print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString() + ', _preset = ' +  _preset.toString());
+    if(_tabController.index == _preset) {
+      if (_preset == 7) {
+        _setPreset(1);
+        _getCustomEq();
+      }
       return;
+    }
+    if(_preset ==7)
+      setState(() {
+      });
     _preset = _tabController.index;
     //_tabController.index  = _preset;
-    //TODO set preset
     if(_preset == 0)
       _setPresetActive(false);
     else {
       if(!_presetActive)
         _setPresetActive(true);
       //_setPreset(_tabController.index-1);
+      print('_tabController = '+ _tabController.toString() + ', _preset = ' +  _preset.toString());
+
       if(_preset == 7){
         _setPreset(1);
         _getCustomEq();
@@ -239,6 +248,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     buildEqList();
+    print('EQ rebuild ' + _tabController.index.toString());
     return new Container(
       padding: EdgeInsets.all(Global.eqBodyPadding),
       child: Center(
@@ -283,6 +293,10 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
                 controller: _tabController,
                 children: _eqList,
               ),
+            ),
+            Container(
+              width: Global.appWidth - Global.eqBodyPadding*2,
+              child: (_tabController.index==7) ? Text(MyLocalizations.of(Global.context).getText('eqHint'), style: Global.eqHintTextStyle, textAlign: TextAlign.left,):null,
             ),
           ],
         ),

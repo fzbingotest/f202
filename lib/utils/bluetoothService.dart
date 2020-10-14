@@ -17,6 +17,7 @@ class bluetoothService with ChangeNotifier {
   static const _Right_tap = 3;
   static bluetoothService _instance ;
   VoidCallback _noDeviceListener;
+  VoidCallback _deviceValidListener;
 
   StreamSubscription _subscription;
   bool isInitial = false;
@@ -27,7 +28,7 @@ class bluetoothService with ChangeNotifier {
   String status ='';
   String signal = '';
   String firmware = '';
-  String appVersion = '1.2.0';
+  String appVersion = '1.2.8';
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
@@ -41,6 +42,7 @@ class bluetoothService with ChangeNotifier {
       isInitial = true;
       _instance = this;
       _noDeviceListener = null;
+      _deviceValidListener = null;
     }
     return _instance;
   }
@@ -53,6 +55,10 @@ class bluetoothService with ChangeNotifier {
   {
     _noDeviceListener = a;
   }
+  void setDeviceValidCallback(VoidCallback a)
+  {
+    _deviceValidListener = a;
+  }
 
   void _onEvent(Object event) {
     print(TAG + " _onEvent _result ---->"+ event.toString());
@@ -63,8 +69,14 @@ class bluetoothService with ChangeNotifier {
         print(TAG +'get Firmware' + res['value']);
         print(TAG +'get Box battery' + res['Box battery']);
         //int.parse(res['Box battery']);
-        firmware = res['value'];
-        boxBattery= res['Box battery'];
+        if(model.contains('TOUR R')){
+          firmware = res['Box battery'];
+          boxBattery= res['value'];
+        }
+        else {
+          firmware = res['value'];
+          boxBattery = res['Box battery'];
+        }
         notifyListeners();
         break;
       case 'eqBank':
@@ -93,8 +105,12 @@ class bluetoothService with ChangeNotifier {
         model = res['model'];
         address = res['address'];
 
-        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('Fender') == false &&_noDeviceListener!= null)
+        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('Fender') == false) {
+          if(_noDeviceListener!= null)
           _noDeviceListener();
+        }
+        else if (_deviceValidListener != null)
+          _deviceValidListener();
         notifyListeners();
         break;
       case 'button':

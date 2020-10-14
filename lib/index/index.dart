@@ -37,6 +37,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   String _model = 'none';
   int _step = 1;
   bluetoothService _btService = new bluetoothService();
+  bool _isNoDevice = false;
 
   @override
   void deactivate(){
@@ -49,6 +50,11 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.paused');
+      if(_isNoDevice == true)
+      {
+        _isNoDevice = false;
+        Navigator.of(context).pop();
+      }
     }
     else if (state == AppLifecycleState.resumed) {
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.resumed');
@@ -72,12 +78,13 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     _btService.initial();
     _btService.setDeviceCallback( _connectDevice);
+    _btService.setDeviceValidCallback( _validDevice);
     _btService.getDevice();
 
   }
 
   Future<Null> _connectDevice() async {
-    if(Global.appGuide < 5 )
+    if(Global.appGuide < Global.guideSteps )
       if(_btService.inGuide == true)
         return ;
 
@@ -92,8 +99,19 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     }
   }
 
-  Future<bool> _showConnectBtConfirmDialog() {
+  void _validDevice()
+  {
+/*
+    if(_isNoDevice == true)
+      {
+        _isNoDevice = false;
+        Navigator.of(context).pop();
+      }
+*/
+  }
 
+  Future<bool> _showConnectBtConfirmDialog() {
+    _isNoDevice = true;
     return showDialog<bool>(
       context: context,
       builder: (context) {

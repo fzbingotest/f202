@@ -54,40 +54,90 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
      return _getMainUI(context);
   }
 
+  void _prevPage(){
+    print(this.toString()+' `````````onPointerUp --' +Global.appGuide.toString() );
+    _step--;
+    if(_step< 0)
+      _step = 0;
+    setState((){});
+  }
+  void _NextPage(){
+    print(this.toString()+' `````````onPointerUp --' +Global.appGuide.toString() );
+    _step++;
+    setState((){});
+    if(_step >= Global.guideSteps) {
+      Global.saveFirstRun(_step);
+      Navigator.pop(context);
+    }
+  }
+
   Widget _getMainUI(BuildContext context)
   {
     //
     print(this.toString() + '--' + Global.appGuide.toString());
     return new Scaffold(
-          appBar: new AppBar(
+          /*appBar: new AppBar(
             //title: Text(MyLocalizations.of(Global.context).testText),
             elevation: 0,
             bottom: PreferredSize(
               child: Image.asset('assets/images/logor.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
               preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
             ),
-          ),
-          body: Listener(
-            onPointerUp: (e){
-            print(this.toString()+' `````````onPointerUp --' +Global.appGuide.toString() );
-            _step++;
-            Global.saveFirstRun(_step);
-            setState((){});
-            if(_step == 5)
-              Navigator.pop(context);
-            },
+          ),*/
+          body: Column(
+            children: <Widget>[
+              Container(
+                height: Global.bottomViewHeight/2,
+              ),
+              PreferredSize(
+                child: Image.asset('assets/images/logor.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
+                preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
+              ),
+              Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerUp: (e){
+                  _NextPage();
+                },
 
-            child: Container(
-                padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding, Global.bodyPadding, 0),
-              child:  _getPage(),
-            ),
-          ),
-        );
+                /*child: SizedBox(
+                  width: Global.appWidth, height: Global.appBodyHeight,*/
+                child: Container(
+                    padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding, Global.bodyPadding, 0),
+                  height: Global.appBodyHeight,
+                  child:  _getPage(),
+                ),
+              ),
+              ButtonBar(
+                buttonHeight: Global.bottomLogoHeight/3,
+                  children: <Widget>[
+                    (_step == 0 )? null:FlatButton(
+                      child: Row(
+                        children:<Widget>[
+                          Icon(Icons.keyboard_arrow_left, /*size: 18.0*/),
+                          Text(MyLocalizations.of(Global.context).getText('Prev')),
+                        ]
+                      ),
+                      onPressed: () {_prevPage();},
+                    ),
+                    SizedBox( width: Global.columnPadding*3, ),
+                    FlatButton(
+                      child: Row(
+                        children:<Widget>[
+                          (_step<(Global.guideSteps-1))?Text(MyLocalizations.of(Global.context).getText('Next')): Text(MyLocalizations.of(Global.context).getText('Finish')),
+                          Icon(Icons.keyboard_arrow_right, /*size: 18.0*/),
+                        ]
+                      ),
+                      onPressed: () {print('Next3');_NextPage();},
+                    ),
+                  ]
+              ),
+          ]
+        )
+    );
   }
   Widget _getPage(){
     print("_getPage " + _step.toString());
     switch (_step){
-
       case 0:
         return Column(
           children: <Widget>[
@@ -119,7 +169,13 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             SizedBox( height : Global.tabImgHeight ),
             Container(
               child: PreferredSize(
-                child: Image.asset('assets/images/pairing0.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                child: Row(
+                    children: <Widget>[
+                      Image.asset('assets/images/pairing0.png', /*height: Global.bottomLogoHeight*1.8,*/ width: (Global.appWidth - Global.bodyPadding*2 - Global.columnPadding)/2),
+                      SizedBox( width: Global.columnPadding, ),
+                      Image.asset('assets/images/pairing1.png', /*height: Global.bottomLogoHeight*1.8,*/ width: (Global.appWidth - Global.bodyPadding*2 - Global.columnPadding)/2),
+                    ]
+                ),
                 preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
               ),
             ),
@@ -127,14 +183,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             Container(
               child: Text(MyLocalizations.of(Global.context).getText('pairing_text0'), style: Global.contentTextStyle),
             ),
-            SizedBox( height : Global.tabImgHeight ),
-            Container(
-              child: PreferredSize(
-                child: Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
-                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
-              ),
-            ),
-          ],
+           ],
         );
       case 2:
         return Column(
@@ -147,9 +196,9 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
               child: PreferredSize(
                 child: Row(
                   children: <Widget>[
-                    Image.asset('assets/images/pairing0.png', height: Global.bottomLogoHeight*1.8, /*width: Global.appWidth*/),
-                    SizedBox( width: Global.columnPadding*10, ),
-                    Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*1.8, /*width: Global.appWidth*/),
+                    Image.asset('assets/images/pairing0.png', /*height: Global.bottomLogoHeight*1.8,*/ width: (Global.appWidth - Global.bodyPadding*2 - Global.columnPadding)/2),
+                    SizedBox( width: Global.columnPadding, ),
+                    Image.asset('assets/images/pairing1.png', /*height: Global.bottomLogoHeight*1.8,*/ width: (Global.appWidth - Global.bodyPadding*2 - Global.columnPadding)/2),
                   ]
                 ),
                 preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
@@ -189,7 +238,6 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
           ],
         );
       case 4:
-
         return Column(
           children: <Widget>[
             Container(
@@ -224,7 +272,76 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
           ],
         );
       case 5:
-      default:
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Text(MyLocalizations.of(Global.context).getText('Button'), style: Global.titleTextStyle1),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            SizedBox(
+              width: Global.appWidth- (Global.bodyPadding*2),
+              height: Global.bottomLogoHeight*2,
+              child:Row(
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      SizedBox( height : Global.bottomLogoHeight*1.2,  width: Global.appWidth/4/*- Global.bodyPadding/2*/),
+                      SizedBox( height : Global.bottomLogoHeight*0.5 ,  width: Global.appWidth/4/*- Global.bodyPadding/2*/,
+                      child: Text(MyLocalizations.of(Global.context).getText('Button'), style: Global.guideButtonTextStyle,textAlign: TextAlign.right,),
+                      ),
+                      SizedBox( height : Global.bottomLogoHeight*0.3 ,  width: Global.appWidth/4/*- Global.bodyPadding/2*/,
+                        child: Text(MyLocalizations.of(Global.context).getText('LED'), style: Global.guideButtonTextStyle,textAlign: TextAlign.right,),
+                      ),
+
+                    ],
+                  ),
+                  SizedBox(
+                      height: Global.bottomLogoHeight*2,
+                      child: Image.asset('assets/images/button_33.png', height: Global.bottomLogoHeight*2, width: Global.appWidth/2- Global.bodyPadding),
+                  )
+                ]
+              )
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            SizedBox(
+              width: Global.appWidth- (Global.bodyPadding*2),
+              child: Text(MyLocalizations.of(Global.context).getText('hold_button'), style: Global.contentTextStyle),
+            ),
+            SizedBox( height : Global.tabImgHeight/4 ),
+            SizedBox(
+              width: Global.appWidth- (Global.bodyPadding*2),
+              child: Text(MyLocalizations.of(Global.context).getText('button_pairing'), style: Global.contentTextStyle),
+            ),
+            SizedBox(
+              width: Global.appWidth- (Global.bodyPadding*2),
+              child: Text(MyLocalizations.of(Global.context).getText('button_reset'), style: Global.contentTextStyle),
+            ),
+            SizedBox(
+              width: Global.appWidth- (Global.bodyPadding*2),
+              child: Text(MyLocalizations.of(Global.context).getText('button_R_pairing'), style: Global.contentTextStyle),
+            ),
+          ],
+        );
+      case 6:
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Text(MyLocalizations.of(Global.context).getText('Factory_reset'), style: Global.titleTextStyle1),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: PreferredSize(
+                child: Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+              ),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: Text(MyLocalizations.of(Global.context).getText('reset_content'), style: Global.contentTextStyle),
+            ),
+          ],
+        );
+        default:
         return Column(
           children: <Widget>[
             Container(

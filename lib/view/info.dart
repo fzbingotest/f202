@@ -1,3 +1,4 @@
+import 'package:Tour/index/guide.dart';
 import 'package:Tour/utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +25,14 @@ class _InfoPageState extends State<InfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(Global.bodyPadding),
-      alignment:Alignment.bottomLeft,
-      child: Column(
-        children: _listTitle.asMap().keys.map((f)=>
-            Container(
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(Global.bodyPadding),
+          alignment:Alignment.bottomLeft,
+          child: Column(
+            children: _listTitle.asMap().keys.map((f)=>
+              Container(
                 height: Global.tabHeight*1.3,
                 child: Row(
                   children: <Widget>[
@@ -62,9 +65,26 @@ class _InfoPageState extends State<InfoPage> {
                     )
                   ],
                 )
-            )).toList(),
-      )
-     );
+              )
+            ).toList(),
+          )
+        ),
+      Container(
+          child:FlatButton(
+            color: Colors.white,
+            highlightColor: Global.appGreen,
+            //colorBrightness: Brightness.dark,
+            //splashColor: Colors.grey,
+            child: Text( MyLocalizations.of(Global.context).getText('Show_instructions'), style: Global.floatHzTextStyle),
+            shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+            onPressed: () {
+              Navigator.push(
+                  context, new MaterialPageRoute(builder: (context) => new Guide()));
+            },
+          )
+      ),
+     ]
+    );
   }
 }
 
