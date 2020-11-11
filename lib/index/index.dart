@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:Tour/index/guide.dart';
 import 'package:Tour/utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -87,27 +86,34 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     if(Global.appGuide < Global.guideSteps )
       if(_btService.inGuide == true)
         return ;
+    if(_isNoDevice == true)
+      return;
 
     bool delete = await _showConnectBtConfirmDialog();
+    print("delete = " + delete.toString());
     if (delete == null) {
       print("NO");
       exit(0);
-    } else {
+    } else if (delete == true){
       print("Yes");
       platform.invokeMethod('native_go_to_setting');
       exit(0);
     }
+    else
+      {
+        print("Ha Ha ~~~");
+        //exit(0);
+      }
   }
 
   void _validDevice()
   {
-/*
     if(_isNoDevice == true)
       {
         _isNoDevice = false;
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(false);
       }
-*/
+
   }
 
   Future<bool> _showConnectBtConfirmDialog() {
@@ -184,37 +190,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     print('index build ~~' + _currentIndex.toString()+'app init=' + Global.appGuide.toString() + 'step=' + _step.toString());
     return _getMainUI(context);
 
-    /*if(Global.appGuide == 0)//((Global.appGuide&(1 <<_currentIndex)) != 0)
-      return _getMainUI(context);
-    else
-      return Listener(
-        onPointerUp: (e){
-          _step++;
-          print('`````````onPointerUp --' + _currentIndex.toString() + ' _step = ' +_step.toString());
-          if((_step > 2 && _currentIndex  <= 1) || (_step >3 && _currentIndex  == 2) || (_step >1 && _currentIndex  == 3)|| (_step >1 && _currentIndex  == 4)) {
-            Global.saveFirstRun(Global.appGuide|(1<< _currentIndex));
-            _step = 1;
-          }
-          setState((){});
-        },
-
-    child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          //overflow: Overflow.visible,
-          children: <Widget>[
-            _getGuideUI(),
-            Positioned(
-              bottom: 0,
-              child: Container( child: Text('') , color: Color.fromARGB(168, 0, 0, 0), height: Global.appHeight, width: Global.appWidth,),
-            ),
-            _getDescribeWidget(),
-            _getPointWidget(),
-
-          ],
-        )
-      )
-      );*/
   }
 
   Widget _getMainUI(BuildContext context)
@@ -227,6 +202,8 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       currentIndex: _currentIndex,  //
       type: BottomNavigationBarType.fixed,    //
       onTap: (int index){   //
+        if(_btService.isRConnected() && (index == 1 || index == 3))
+          return;
         setState((){    //
           _navigationViews[_currentIndex].controller.reverse();
           _currentIndex = index;

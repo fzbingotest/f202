@@ -28,7 +28,7 @@ class bluetoothService with ChangeNotifier {
   String status ='';
   String signal = '';
   String firmware = '';
-  String appVersion = '1.2.8';
+  String appVersion = '1.2.11';
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
@@ -58,6 +58,11 @@ class bluetoothService with ChangeNotifier {
   void setDeviceValidCallback(VoidCallback a)
   {
     _deviceValidListener = a;
+  }
+
+  bool isRConnected()
+  {
+    return model.contains('TOUR R');
   }
 
   void _onEvent(Object event) {
@@ -117,6 +122,11 @@ class bluetoothService with ChangeNotifier {
         print(TAG +'get button' + res['value']);
         _decodeButtonFunc(res['value']);
         notifyListeners();
+        break;
+      case 'service':
+        print(TAG +'get service' + res['value']);
+        if(res['value'].startsWith('connect')== true && _deviceValidListener != null)
+          _deviceValidListener();
         break;
 
     }

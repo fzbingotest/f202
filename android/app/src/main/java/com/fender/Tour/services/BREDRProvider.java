@@ -570,7 +570,6 @@ import java.util.UUID;
         }
 
         UUID transport = getUUIDTransport(uuids);
-        Log.w(TAG, "getUUIDTransport 1 -- " + transport.toString());
         // connection can be processed only if a compatible transport has been found.
         // if the device has not yet been bonded, the UUIDs has not been fetched yet by the system.
         if (transport == null && device.getBondState() != BluetoothDevice.BOND_BONDED) {

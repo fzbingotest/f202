@@ -76,19 +76,14 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
     //
     print(this.toString() + '--' + Global.appGuide.toString());
     return new Scaffold(
-          /*appBar: new AppBar(
-            //title: Text(MyLocalizations.of(Global.context).testText),
+          appBar: new AppBar(
             elevation: 0,
-            bottom: PreferredSize(
-              child: Image.asset('assets/images/logor.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
-              preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
-            ),
-          ),*/
+          ),
           body: Column(
             children: <Widget>[
-              Container(
+              /*Container(
                 height: Global.bottomViewHeight/2,
-              ),
+              ),*/
               PreferredSize(
                 child: Image.asset('assets/images/logor.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
                 preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
@@ -275,7 +270,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
         return Column(
           children: <Widget>[
             Container(
-              child: Text(MyLocalizations.of(Global.context).getText('Button'), style: Global.titleTextStyle1),
+              child: Text(MyLocalizations.of(Global.context).getText('ButtonTitle'), style: Global.titleTextStyle1),
             ),
             SizedBox( height : Global.tabImgHeight ),
             SizedBox(

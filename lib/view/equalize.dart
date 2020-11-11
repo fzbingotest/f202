@@ -106,7 +106,6 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString() + ', _preset = ' +  _preset.toString());
     if(_tabController.index == _preset) {
       if (_preset == 7) {
-        _setPreset(1);
         _getCustomEq();
       }
       return;
@@ -125,8 +124,8 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       print('_tabController = '+ _tabController.toString() + ', _preset = ' +  _preset.toString());
 
       if(_preset == 7){
+        _setPreset(0);
         _setPreset(1);
-        _getCustomEq();
       }
       else if(_preset == 1)
       {
@@ -216,8 +215,10 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       for(int i= 0; i<7; i++)
       {
         key1 = key+i.toString();
-        if(res[key1] != null && _keyValid(res[key1]))
+        if(res[key1] != null && _keyValid(res[key1])) {
           _seztoList[i] = res[key1].toDouble();
+          setCustomEq(i, res[key1].toInt());
+        }
       }
       setState(() {});
     }
@@ -328,17 +329,18 @@ class _EqualizeViewState extends State<EqualizeView> {
                 SizedBox(child: Text(_listTitle[f], style: Global.eqHzTextStyle,), width: Global.eqItemTitleWidth),
                   SizedBox( width: Global.columnPadding ),
                   Expanded(
-                    child: CupertinoSlider(value: widget.listGain[f],min: -12,max: 12,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
+                    child: CupertinoSlider(value: widget.listGain[f],min: -12.0,max: 12.0,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
                         onChanged: (double value) {
                           if(widget.type.contains('Sezto')) {
-                            widget.listGain[f] = value;
+                            int temp = value.round();
+                            widget.listGain[f] = temp.toDouble();
                             setState(() {
                             });
                           }
                         },
                         onChangeEnd: (double newValue) {
                           if(widget.type.contains('Sezto')) {
-                            _EqualizePageState.setCustomEq(f, newValue.toInt());
+                            _EqualizePageState.setCustomEq(f, newValue.round());
                             print('Ended change on $newValue');
                           }
 

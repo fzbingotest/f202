@@ -68,6 +68,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "com.android.billingclient:billing:$billing_version"
+    implementation 'androidx.slice:slice-builders:1.0.0'
 }
 flutter {
     source '../..'
