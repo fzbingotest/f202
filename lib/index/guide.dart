@@ -19,27 +19,25 @@ class Guide extends StatefulWidget {
 
 class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBindingObserver{
 
-  int _currentIndex = 0;    //
-  List<NavigationIconView> _navigationViews;  //
-  List<StatefulWidget> _pageList;   //
-  StatefulWidget _currentPage;  //
-
-  bluetoothService _btService = new bluetoothService();
+  int _step = 0;
 
   @override
   void deactivate(){
     super.deactivate();
-    print(this.toString() + 'deactivate');
+    print(this.toString() + ' -- deactivate');
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    print(this.toString() + ' -- didChangeAppLifecycleState ' +state.toString());
   }
 
   @override
   void dispose() {
     super.dispose();
+    print(this.toString() + ' -- dispose');
+    bluetoothService.instance.appGuideExit();
     //_btService.dispose();
   }
 
@@ -53,21 +51,17 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
 
   @override
   Widget build(BuildContext context) {
-    Global.initScreen(context);
-    return _getMainUI(context);
+     return _getMainUI(context);
   }
 
   Widget _getMainUI(BuildContext context)
   {
     //
     print(this.toString() + '--' + Global.appGuide.toString());
-    return new MaterialApp(
-      home: ChangeNotifierProvider(
-        create: (context) => _btService,
-        child:
-        new Scaffold(
+    return new Scaffold(
           appBar: new AppBar(
             //title: Text(MyLocalizations.of(Global.context).testText),
+            elevation: 0,
             bottom: PreferredSize(
               child: Image.asset('assets/images/logo.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
               preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
@@ -75,39 +69,107 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
           ),
           body: Listener(
             onPointerUp: (e){
-            print(this.toString()+' `````````onPointerUp --' );
-             Global.saveFirstRun(1);
+            print(this.toString()+' `````````onPointerUp --' +Global.appGuide.toString() );
+            _step++;
+             Global.saveFirstRun(_step);
             setState((){});
+            if(_step == 3)
+              Navigator.pop(context);
             },
 
-            child: Center(
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    height: Global.appBodyHeight,
-                    padding: EdgeInsets.all(Global.bodyPadding),
-                    child: Text('Please put the earbud to charge case', style: Global.titleTextStyle1),   //
-                    //color: Colors.red[400],
-                  ),
-                  //Text(_model, style: Global.titleTextStyle1/*TextStyle(color: Colors.white, fontSize: 20)*/)
-                ],
-              )
+            child: Container(
+
+                padding: EdgeInsets.all(Global.bodyPadding),
+              child:  _getPage(),
+            ),
           ),
-        ),
-        ),
-      ),
-      theme: ThemeData(
-        primaryColor: Color.fromARGB(255,52,52,52),
-        canvasColor: Color.fromARGB(255,52,52,52),
-        brightness: Brightness.dark,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-
-    );
+        );
   }
+  Widget _getPage(){
+    print("_getPage " + _step.toString());
+    switch (_step){
+      case 0:
 
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Text('Fender TOUR OverView', style: Global.titleTextStyle1),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+             child: PreferredSize(
+               child: Image.asset('assets/images/earbud.png', height: Global.bottomLogoHeight, width: Global.appWidth),
+               preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+             ),
+            ),
+            SizedBox( height : Global.tabImgHeight*3 ),
+            Container(
+              child: PreferredSize(
+                child: Image.asset('assets/images/changingcase.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+              ),
+            ),
+            ],
+          );
+      case 1:
+
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Text('PAIRING', style: Global.titleTextStyle1),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: PreferredSize(
+                child: Image.asset('assets/images/pairing0.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+              ),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: Text('Open the charging case, press and hold the case button until the LED on the charging case blinks blue and green，the TWS LED blinks green.', style: Global.contentTextStyle),
+            ),
+            Container(
+              child: PreferredSize(
+                child: Image.asset('assets/images/pairing1.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+              ),
+            ),
+          ],
+        );
+      case 2:
+      default:
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Text('CHARGING', style: Global.titleTextStyle1),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: PreferredSize(
+                child: Image.asset('assets/images/charging0.png', height: Global.bottomLogoHeight*2, width: Global.appWidth),
+                preferredSize: Size(Global.appWidth, Global.bottomLogoHeight),
+              ),
+            ),
+            SizedBox( height : Global.tabImgHeight ),
+            Container(
+              child: Text('Close the lid and attach the USB-C charging cable to the charging case', style: Global.contentTextStyle),
+            ),
+
+            Container(
+              child: Text('The case LED will indicate the charging status: ', style: Global.contentTextStyle),
+            ),
+
+            Container(
+              child: Text('LED is solid red = Charging             ', style: Global.contentTextStyle),
+            ),
+
+            Container(
+              child: Text('LED is solid green = Fully charged', style: Global.contentTextStyle),
+            ),
+          ],
+        );
+    }
+  }
 
 }

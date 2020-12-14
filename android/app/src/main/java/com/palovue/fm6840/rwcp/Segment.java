@@ -2,11 +2,11 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.rwcp;
+package com.palovue.fm6840.rwcp;
 
 import android.util.Log;
 
-import com.fender.Tour.Utils;
+import com.palovue.fm6840.Utils;
 import com.qualcomm.qti.libraries.vmupgrade.VMUUtils;
 
 /**

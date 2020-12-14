@@ -1,4 +1,4 @@
-package com.fender.Tour;
+package com.palovue.fm6840;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -28,7 +28,6 @@ import android.os.Message;
 import android.util.Log;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,11 +37,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.lang.reflect.Method;
 
-import com.fender.Tour.gaia.InformationGaiaManager;
-import com.fender.Tour.receivers.BluetoothStateReceiver;
-import com.fender.Tour.services.BluetoothService;
-import com.fender.Tour.services.GAIABREDRService;
-import com.fender.Tour.services.GAIAGATTBLEService;
+import com.palovue.fm6840.gaia.InformationGaiaManager;
+import com.palovue.fm6840.receivers.BluetoothStateReceiver;
+import com.palovue.fm6840.services.BluetoothService;
+import com.palovue.fm6840.services.GAIABREDRService;
+import com.palovue.fm6840.services.GAIAGATTBLEService;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeError;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
@@ -61,22 +60,22 @@ public class MainActivity extends FlutterActivity
         implements BluetoothStateReceiver.BroadcastReceiverListener, InformationGaiaManager.GaiaManagerListener{
     private static final String TAG = "MainActivity";
     private boolean DEBUG = Consts.DEBUG;
-    private static final String CHANNEL= "fender.Tour/call_native";
+    private static final String CHANNEL= "palovue.fm6840/call_native";
     private MethodChannel methodChannel;
 
-    private static final String EVENT_CHANNEL= "fender.Tour/event_native";
+    private static final String EVENT_CHANNEL= "palovue.fm6840/event_native";
     private EventChannel eventChannel;
     private EventChannel.EventSink eventSink;
-    private static final String EQ_EVENT_CHANNEL= "fender.Tour/eq_event_native";
+    private static final String EQ_EVENT_CHANNEL= "palovue.fm6840/eq_event_native";
     private EventChannel eqEventChannel;
     private EventChannel.EventSink eqEventSink;
-    private static final String BASS_EVENT_CHANNEL= "fender.Tour/bass_event_native";
+    private static final String BASS_EVENT_CHANNEL= "palovue.fm6840/bass_event_native";
     private EventChannel bassEventChannel;
     private EventChannel.EventSink bassEventSink;
-    private static final String UPDATE_EVENT_CHANNEL= "fender.Tour/update_event_native";
+    private static final String UPDATE_EVENT_CHANNEL= "palovue.fm6840/update_event_native";
     private EventChannel updateEventChannel;
     private EventChannel.EventSink updateEventSink;
-    private static final String MAIN_EVENT_CHANNEL= "fender.Tour/main_event_native";
+    private static final String MAIN_EVENT_CHANNEL= "palovue.fm6840/main_event_native";
     private EventChannel mainEventChannel;
     private EventChannel.EventSink mainEventSink;
     private Map<String, String> mMap;
@@ -236,7 +235,7 @@ public class MainActivity extends FlutterActivity
                             return;
                         case "native_get_firmware_version":
                             if (isDeviceReady())
-                                mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
+                                mGaiaManager.getInformation(InformationGaiaManager.Information.API_VERSION);
                             break;
                         default:
                             result.success("I don't know what you say");
@@ -1190,6 +1189,10 @@ public class MainActivity extends FlutterActivity
     public void onGetAPIVersion(int versionPart1, int versionPart2, int versionPart3) {
         String APIText = versionPart1 + "." + versionPart2 + "." + versionPart3;
         Log.i(TAG, " onGetAPIVersion " + APIText);
+        Map<String, String> map = new HashMap<>();
+        map.put("Firmware", APIText );
+        if(updateEventSink!= null)
+            updateEventSink.success(map);
        // if(eventSink != null)
             //eventSink.success("Firmware : "+APIText);
 
@@ -1203,8 +1206,8 @@ public class MainActivity extends FlutterActivity
         map.put("Firmware", APPText );
         map.put("Box battery", BoxText );
         Log.i(TAG, " onGetAPPVersion = " + map.toString());
-        if(updateEventSink!= null)
-            updateEventSink.success(map);
+       // if(updateEventSink!= null)
+            //updateEventSink.success(map);
         if(eventSink != null)
             eventSink.success(map);
         if(mainEventSink != null)
@@ -1294,24 +1297,19 @@ public class MainActivity extends FlutterActivity
     private DownloadManager mDownloadManager;
     private long mTaskId;
 
-    //使用系统下载器下载
     private void downloadFile(String versionUrl, String fileName) {
-        //创建下载任务
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(versionUrl));
-        request.setAllowedOverRoaming(false);//漫游网络是否可以下载
+        request.setAllowedOverRoaming(false);//
         Log.i(TAG, " downloadFile " + versionUrl);
 
 
-        //设置文件类型，可以在下载结束后自动打开该文件
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(versionUrl));
         request.setMimeType(mimeString);
 
-        //在通知栏中显示，默认就是显示的
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
         request.setVisibleInDownloadsUi(true);
 
-        //sdcard的目录下的download文件夹，必须设置
         //request.setDestinationInExternalFilesDir(this.getContext(),"",versionUrl.substring(versionUrl.lastIndexOf("/") + 1) );
         String cachePath = Objects.requireNonNull(this.getContext().getExternalFilesDir("Download")).getPath();
         //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -1320,44 +1318,39 @@ public class MainActivity extends FlutterActivity
             Log.i(TAG, "delfile" + mFile.delete());
         Log.i(TAG, " mFile " + mFile.toString()+ "uri = "+ Uri.fromFile(mFile));
         //request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, versionUrl.substring(versionUrl.lastIndexOf("/") + 1));
-        //request.setDestinationInExternalFilesDir(),也可以自己制定下载路径
+        //request.setDestinationInExternalFilesDir(),
         request.setDestinationUri(Uri.fromFile(mFile));
-        //将下载请求加入下载队列
         mDownloadManager = (DownloadManager) this.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        //加入下载队列后会给该任务返回一个long型的id，
-        //通过该id可以取消任务，重启任务等等，看上面源码中框起来的方法
         assert mDownloadManager != null;
         mTaskId = mDownloadManager.enqueue(request);
 
-        //注册广播接收者，监听下载状态
         this.getContext().registerReceiver(receiver,
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
-    //广播接受者，接收下载状态
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            checkDownloadStatus();//检查下载状态
+            checkDownloadStatus();//
         }
     };
-    //检查下载状态
+    //
     private void checkDownloadStatus() {
         DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterById(mTaskId);//筛选下载任务，传入任务ID，可变参数
+        query.setFilterById(mTaskId);//
         Cursor c = mDownloadManager.query(query);
         Log.i(TAG, ">>>" + c.toString());
         if (c.moveToFirst()) {
             int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
             switch (status) {
                 case DownloadManager.STATUS_PAUSED:
-                    Log.i(TAG, ">>>下载暂停");
+                    Log.i(TAG, ">>>paused");
                 case DownloadManager.STATUS_PENDING:
-                    Log.i(TAG, ">>>下载延迟");
+                    Log.i(TAG, ">>>pending");
                 case DownloadManager.STATUS_RUNNING:
-                    Log.i(TAG, ">>>正在下载");
+                    Log.i(TAG, ">>>downloading");
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
-                    Log.i(TAG, ">>>下载完成");
+                    Log.i(TAG, ">>>done");
                     //下载完成安装APK
                     //downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + File.separator + versionName;
                     //installAPK(new File(downloadPath));
@@ -1366,7 +1359,7 @@ public class MainActivity extends FlutterActivity
                     break;
                 case DownloadManager.STATUS_FAILED:
                     int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
-                    Log.i(TAG, ">>>下载失败 = " + reason);
+                    Log.i(TAG, ">>>failed = " + reason);
                     break;
             }
         }

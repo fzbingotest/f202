@@ -2,7 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.gaia;
+package com.palovue.fm6840.gaia;
 
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.gaia.GaiaManager;

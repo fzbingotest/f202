@@ -3,7 +3,7 @@
  **************************************************************************************************/
 
 
-package com.fender.Tour.gaia;
+package com.palovue.fm6840.gaia;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -11,7 +11,7 @@ import androidx.annotation.IntDef;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import com.fender.Tour.Consts;
+import com.palovue.fm6840.Consts;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.gaia.GaiaException;
 import com.qualcomm.qti.libraries.gaia.GaiaUtils;

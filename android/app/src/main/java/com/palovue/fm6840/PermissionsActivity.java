@@ -2,10 +2,9 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour;
+package com.palovue.fm6840;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;

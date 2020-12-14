@@ -3,12 +3,12 @@
  **************************************************************************************************/
 
 
-package com.fender.Tour.gaia;
+package com.palovue.fm6840.gaia;
 
 import android.util.Log;
 
-import com.fender.Tour.Consts;
-import com.fender.Tour.rwcp.RWCP;
+import com.palovue.fm6840.Consts;
+import com.palovue.fm6840.rwcp.RWCP;
 import com.qualcomm.qti.libraries.gaia.GAIA;
 import com.qualcomm.qti.libraries.gaia.GaiaException;
 import com.qualcomm.qti.libraries.gaia.packets.GaiaPacket;

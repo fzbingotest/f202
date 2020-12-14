@@ -2,7 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.model.gatt;
+package com.palovue.fm6840.model.gatt;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;

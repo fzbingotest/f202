@@ -10,6 +10,7 @@ import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/httpControl.dart';
 import 'package:Tour/utils/myLocalizations.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:Tour/utils/bluetoothService.dart';
 
 class UpdatePage extends StatefulWidget{
   @override
@@ -19,16 +20,19 @@ class UpdatePage extends StatefulWidget{
 class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateMixin  {
   String _version;
   String _currentVersion = '';
+  String _peerVersion = '';
   String _url = 'abc';
   String _updateInfo;
   double _step = 0.00;
   bool _isUpdating = false;
   Color _buttonColor = Colors.white;
+  Timer _timer;
+  int _countdownTime = 0;
   //Animation<double> _animation;
   AnimationController _animationController;
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.fm6840/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/update_event_native');
+  static const EventChannel eventChannel =  const EventChannel('palovue.fm6840/update_event_native');
   StreamSubscription _subscription;
 
   @override
@@ -46,6 +50,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       });
     });
     _version = MyLocalizations.of(Global.context).getText('unknown');
+    _currentVersion = MyLocalizations.of(Global.context).getText('unknown');
     _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
     getCurrentVersion();
     checkLatestVersion();
@@ -70,6 +75,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       {
         //update success
         _animationController.stop();
+        _timer.cancel();
         _step = 1.0;
         setState(() {
         });
@@ -81,11 +87,25 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       {
         _currentVersion = res['Firmware'];
         print('version check = ' + _version + ':' + _currentVersion + " = " + _version.compareTo(_currentVersion).toString());
+        if(res['Box battery']!=null)
+          {
+            _peerVersion = res['Box battery'];
+            print('peer version check = ' + _version + ':' + _peerVersion + " = " + _version.compareTo(_peerVersion).toString());
+          }
       }
+    else if(res['progress']!=null )
+    {
+      _animationController.value = (0.02+ (double.parse(res['progress'])*0.78)/100);
+      print('progress _step = ' + _step.toString() + ' -- ' + res['progress']);
+      if(_animationController.value > 0.795)
+        _animationController.forward();
+    }
     else{
       _step = 0.0;
       _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
       _animationController.stop();
+      _timer.cancel();
+      _countdownTime = 0;
       _step = 0.0;
       setState(() {});
       _isUpdating =false;
@@ -100,7 +120,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json", (data) {
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/fm7840_release.json", (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);
@@ -128,6 +148,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       platform.invokeMethod('native_go_to_setting');
       exit(0);
     }
+    bluetoothService.instance.finishUpdate();
   }
 
   Future<Null> _updateConfirm() async {
@@ -165,6 +186,21 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 24.0,
+    );
+  }
+
+  void _noVersion(){
+    //_step = 0.0;
+    //_animationController.forward();
+    Fluttertoast.cancel();
+    Fluttertoast.showToast(
+      msg: 'Can not get current version',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 24.0,
     );
   }
 
@@ -220,6 +256,18 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     );
   }
 
+  void startCountdownTimer() {
+    const oneSec = const Duration(milliseconds: 500);
+
+    var callback = (timer) => {
+      setState(() {
+          _countdownTime = _countdownTime + 1;
+      })
+    };
+
+    _timer = Timer.periodic(oneSec, callback);
+  }
+
   var _stack;
   Stack _buildStack() {
     //print('step ' + _step.toString() + 'lowerBound ' + _animationController.value.toString());
@@ -231,8 +279,8 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           width: Global.updateProcessWidth,
           child: RotatedBox(
               quarterTurns: 3, //旋转90度(1/4圈)
-              child: new LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
+              child: new CircularProgressIndicator(
+                backgroundColor: Colors.white70,
                 value: _step,
                 valueColor: new AlwaysStoppedAnimation<Color>(Colors.red),
               )
@@ -241,9 +289,11 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         Container(
             height: Global.updateImgHeight,
             width: Global.updateImgWidth,
-            child:  Image.asset(
-            'assets/images/update.png', height: Global.updateImgHeight,
-            width: Global.updateImgWidth),
+            child:  (_countdownTime%2 == 0)? Image.asset(
+            'assets/images/linkflow.png', height: Global.updateImgHeight,
+            width: Global.updateImgWidth) : Image.asset(
+                'assets/images/palovue_on.png', height: Global.updateImgHeight,
+                width: Global.updateImgWidth),
         )
       ],
     );
@@ -256,6 +306,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_updating');
       _isUpdating = true;
       _animationController.forward();
+      startCountdownTimer();
       Wakelock.enable();
     }
   }
@@ -282,6 +333,18 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
             ],
           ),
 
+          Row(
+            children: <Widget>[
+              Text(
+                MyLocalizations.of(Global.context).getText('current_firmware'),
+                style: Global.contentTextStyle,
+              ),
+              Text(
+                _currentVersion,
+                style: Global.contentTextStyle,
+              ),
+            ],
+          ),
           Container(
             height: Global.updateBodyHeight,
             child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
@@ -298,7 +361,9 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
+                if(!_currentVersion.contains('1.2'))
+                  _noVersion();
+                else if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
                   _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();

@@ -2,10 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour;
-
-import android.content.Context;
-import android.graphics.drawable.Drawable;
+package com.palovue.fm6840;
 
 import java.text.DecimalFormat;
 

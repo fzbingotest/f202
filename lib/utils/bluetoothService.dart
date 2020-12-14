@@ -6,9 +6,9 @@ import 'package:flutter/services.dart';
 // ignore: camel_case_types
 class bluetoothService with ChangeNotifier {
   static const String TAG = 'bluetoothService';
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.fm6840/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/main_event_native');
+  static const EventChannel eventChannel =  const EventChannel('palovue.fm6840/main_event_native');
   static const _LeftHold= 2;
   static const _RightHold = 5;
   static const _Left2tap = 1;
@@ -22,13 +22,14 @@ class bluetoothService with ChangeNotifier {
   bool isInitial = false;
   String model ='none';
   String address ='none';
-  String battery ='50';
-  String boxBattery = '50';
-  String status ='Not charging';
-  String signal = '-30 db';
-  String firmware = '1.0.0';
-  String appVersion = '1.1.3';
+  String battery ='';
+  String boxBattery = '';
+  String status ='';
+  String signal = '';
+  String firmware = '';
+  String appVersion = '1.1.7';
   bool bass = false;
+  bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
 
   static get instance => _instance;
@@ -42,6 +43,11 @@ class bluetoothService with ChangeNotifier {
       _noDeviceListener = null;
     }
     return _instance;
+  }
+  void appGuideExit()
+  {
+    getDevice();
+    inGuide = false;
   }
   void setDeviceCallback(VoidCallback a)
   {
@@ -158,6 +164,14 @@ class bluetoothService with ChangeNotifier {
   void getDevice() {
     try {
       platform.invokeMethod('native_get_current_device');
+    } on PlatformException catch (e) {
+      print("failed to get devices "+e.toString());
+    }
+  }
+
+  void finishUpdate() {
+    try {
+      platform.invokeMethod('native_check_current_device');
     } on PlatformException catch (e) {
       print("failed to get devices "+e.toString());
     }

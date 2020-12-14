@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.services;
+package com.palovue.fm6840.services;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -19,8 +19,8 @@ import androidx.annotation.NonNull;
 
 import android.util.Log;
 
-import com.fender.Tour.Utils;
-import com.fender.Tour.receivers.UUIDReceiver;
+import com.palovue.fm6840.Utils;
+import com.palovue.fm6840.receivers.UUIDReceiver;
 
 import java.io.IOException;
 import java.io.InputStream;

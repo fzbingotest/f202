@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour;
+package com.palovue.fm6840;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

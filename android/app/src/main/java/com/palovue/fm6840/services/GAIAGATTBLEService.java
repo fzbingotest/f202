@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.services;
+package com.palovue.fm6840.services;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -19,15 +19,15 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import android.util.Log;
 
-import com.fender.Tour.Consts;
-import com.fender.Tour.Utils;
-import com.fender.Tour.gaia.UpgradeGaiaManager;
-import com.fender.Tour.model.gatt.GATT;
-import com.fender.Tour.model.gatt.GATTServices;
-import com.fender.Tour.model.gatt.GattServiceBattery;
-import com.fender.Tour.model.gatt.GattServiceHeartRate;
-import com.fender.Tour.receivers.BondStateReceiver;
-import com.fender.Tour.rwcp.RWCPClient;
+import com.palovue.fm6840.Consts;
+import com.palovue.fm6840.Utils;
+import com.palovue.fm6840.gaia.UpgradeGaiaManager;
+import com.palovue.fm6840.model.gatt.GATT;
+import com.palovue.fm6840.model.gatt.GATTServices;
+import com.palovue.fm6840.model.gatt.GattServiceBattery;
+import com.palovue.fm6840.model.gatt.GattServiceHeartRate;
+import com.palovue.fm6840.receivers.BondStateReceiver;
+import com.palovue.fm6840.rwcp.RWCPClient;
 import com.qualcomm.qti.libraries.ble.BLEService;
 import com.qualcomm.qti.libraries.ble.BLEUtils;
 import com.qualcomm.qti.libraries.ble.Characteristics;

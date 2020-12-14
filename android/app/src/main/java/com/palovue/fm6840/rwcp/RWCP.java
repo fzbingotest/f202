@@ -2,7 +2,7 @@
  * Copyright 2017 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.rwcp;
+package com.palovue.fm6840.rwcp;
 
 import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;

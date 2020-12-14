@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:Tour/index/guide.dart';
 import 'package:Tour/utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   List<NavigationIconView> _navigationViews;  //
   List<StatefulWidget> _pageList;   //
   StatefulWidget _currentPage;  //
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.fm6840/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = 'none';
   int _step = 1;
@@ -48,11 +49,11 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.paused) {
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.paused');
-      if(_currentIndex == 3)
-        _btService.getInfo();
     }
     else if (state == AppLifecycleState.resumed) {
       print(this.toString() + 'didChangeAppLifecycleState -> ' + 'AppLifecycleState.resumed');
+      if(_currentIndex == 3)
+        _btService.getInfo();
     }
   }
 
@@ -129,12 +130,12 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.grey),
           activeIcon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
           title: new Text(MyLocalizations.of(context).getText('UPDATE')), vsync: this),
-      new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.grey),
-          activeIcon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
-          title: new Text(MyLocalizations.of(context).getText('INFO')), vsync: this),
       new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.grey),
           activeIcon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
           title: new Text(MyLocalizations.of(context).getText('SETTING')), vsync: this),
+      new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.grey),
+          activeIcon: new ImageIcon(AssetImage('assets/images/tab_info.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
+          title: new Text(MyLocalizations.of(context).getText('INFO')), vsync: this),
     ];
 
     //
@@ -147,8 +148,8 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       new ConfigsPage(),
       new EqualizePage(),
       new UpdatePage(),
-      new InfoPage(),
       new SettingPage(),
+      new InfoPage(),
     ];
     _currentPage = _pageList[_currentIndex];
   }
@@ -157,9 +158,10 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   Widget build(BuildContext context) {
     Global.initScreen(context);
     createPage();
-
     print('index build ~~' + _currentIndex.toString()+'app init=' + Global.appGuide.toString() + 'step=' + _step.toString());
-    if((Global.appGuide&(1 <<_currentIndex)) != 0)
+    return _getMainUI(context);
+
+    /*if(Global.appGuide == 0)//((Global.appGuide&(1 <<_currentIndex)) != 0)
       return _getMainUI(context);
     else
       return Listener(
@@ -189,49 +191,41 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
           ],
         )
       )
-      );
+      );*/
   }
 
   Widget _getMainUI(BuildContext context)
   {
     //
-    final BottomNavigationBar bottomNavigationBar = new BottomNavigationBar(
-      items: _navigationViews
-          .map((NavigationIconView navigationIconView) => navigationIconView.item)
-          .toList(),  //
-      currentIndex: _currentIndex,  //
-      type: BottomNavigationBarType.fixed,    //
-      onTap: (int index){   //
-        setState((){    //
-          _navigationViews[_currentIndex].controller.reverse();
-          _currentIndex = index;
-          _navigationViews[_currentIndex].controller.forward();
-          _currentPage = _pageList[_currentIndex];
-        });
-      },
-    );
-
     print('_getMainUI --------- _btService = '+_btService.toString() );
     _btService.initial();
+    _btService.getDevice();
 
     return new MaterialApp(
       home: ChangeNotifierProvider(
         create: (context) => _btService,
         child:
           new Scaffold(
-            appBar: new AppBar(
+    /*appBar: new AppBar(
               //title: Text(MyLocalizations.of(Global.context).testText),
               bottom: PreferredSize(
                 child: Image.asset('assets/images/logo.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
                 preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
               ),
-            ),
+            ),*/
             body: new Center(
                 child: Column(
                   children: <Widget>[
                     Container(
+                      height: Global.bottomViewHeight,
+                    ),
+                    PreferredSize(
+                      child: Image.asset('assets/images/palovue.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
+                      preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
+                    ),
+                    Container(
                       height: Global.appBodyHeight,
-                      child: _currentPage,   //
+                      child: UpdatePage(),   //
                       //color: Colors.red[400],
                     ),
                     Selector(builder:  (BuildContext context, String data, Widget child) {
@@ -245,7 +239,6 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
                   ],
                 )
             ),
-            bottomNavigationBar: bottomNavigationBar,   //
 
           ),
         ),

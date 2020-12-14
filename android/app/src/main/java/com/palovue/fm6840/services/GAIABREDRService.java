@@ -2,7 +2,7 @@
  * Copyright 2018 Qualcomm Technologies International, Ltd.                                       *
  **************************************************************************************************/
 
-package com.fender.Tour.services;
+package com.palovue.fm6840.services;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -14,12 +14,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.fender.Tour.Consts;
+import com.palovue.fm6840.Consts;
 
-import com.fender.Tour.model.gatt.GATTServices;
-import com.fender.Tour.receivers.BondStateReceiver;
+import com.palovue.fm6840.model.gatt.GATTServices;
+import com.palovue.fm6840.receivers.BondStateReceiver;
 import com.qualcomm.qti.libraries.ble.BLEUtils;
 import com.qualcomm.qti.libraries.vmupgrade.UpgradeManager;
 import com.qualcomm.qti.libraries.vmupgrade.codes.ResumePoints;
