@@ -28,6 +28,7 @@ import android.os.Message;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,6 +157,13 @@ public class MainActivity extends FlutterActivity
 
                             result.success(res);
                             break;
+                        case "native_check_current_device":
+                            if (mService != null) {
+                                //rmInformationFromDevice();
+                                mService.removeHandler(mHandler);
+                                mService = null;
+                                unbindService(mServiceConnection);
+                            }
                         case "native_get_bt_device":
                         case "native_get_current_device":
                             getConnectedBtDevice(result);
@@ -565,6 +573,8 @@ public class MainActivity extends FlutterActivity
                     mainMap.put("value", "finish");
                     mainEventSink.success(mainMap);
                 }
+                //mService.disconnectDevice();
+                //mService = null;
                 break;
 
             case BluetoothService.UpgradeMessage.UPGRADE_REQUEST_CONFIRMATION:
@@ -612,6 +622,12 @@ public class MainActivity extends FlutterActivity
 
             case BluetoothService.UpgradeMessage.UPGRADE_UPLOAD_PROGRESS:
                 double percentage = (double) content;
+                Log.i(TAG, " onReceiveUpgradeMessage percentage " +  percentage);
+                map.put("progress", String.valueOf(percentage));
+
+                if(updateEventSink != null)
+                    updateEventSink.success(map);
+
 
                 handleMessage.append("UPGRADE_UPLOAD_PROGRESS");
                 break;
@@ -1182,13 +1198,13 @@ public class MainActivity extends FlutterActivity
     @Override
     public void onGetAPPVersion(int versionPart1, int versionPart2, int versionPart3, int versionPart4) {
         String APPText = versionPart1 + "." + versionPart2 ;
-        String BoxText = ""+versionPart3 ;
+        String BoxText = versionPart3 + "." + versionPart4 ;
         Map<String, String> map = new HashMap<>();
         map.put("Firmware", APPText );
-        if(updateEventSink!= null)
-            updateEventSink.success(map);
         map.put("Box battery", BoxText );
         Log.i(TAG, " onGetAPPVersion = " + map.toString());
+        if(updateEventSink!= null)
+            updateEventSink.success(map);
         if(eventSink != null)
             eventSink.success(map);
         if(mainEventSink != null)
@@ -1236,11 +1252,18 @@ public class MainActivity extends FlutterActivity
      */
     private void getInformationFromDevice() {
         //Log.i(TAG, " getInformationFromDevice " + mService + mService.getConnectionState() + mService.isGaiaReady());
+        File file=new File("file:///android_asset/update.bin");
+        if(file.exists()){
+            Log.i(TAG, " getInformationFromDevice file.exists" + file.getAbsolutePath());
+        }else {
+            Log.i(TAG, " getInformationFromDevice file.no exists");
+        }
+
         if (mService!= null && mService.getConnectionState() == BluetoothService.State.CONNECTED
                 && mService.isGaiaReady()) {
             mGaiaManager.getInformation(InformationGaiaManager.Information.API_VERSION);
             mGaiaManager.getNotifications(InformationGaiaManager.Information.BATTERY, true);
-            mGaiaManager.getNotifications(InformationGaiaManager.Information.RSSI, true);
+            mGaiaManager.getNotifications(InformationGaiaManager.Information.RSSI, false);
             mGaiaManager.getInformation(InformationGaiaManager.Information.APP_VERSION);
         }
     }
