@@ -16,6 +16,7 @@ class bluetoothService with ChangeNotifier {
   static const _Left_tap = 0;
   static const _Right_tap = 3;
   static bluetoothService _instance ;
+
   VoidCallback _noDeviceListener;
   VoidCallback _deviceValidListener;
 
@@ -28,7 +29,7 @@ class bluetoothService with ChangeNotifier {
   String status ='';
   String signal = '';
   String firmware = '';
-  String appVersion = '1.2.11';
+  String appVersion = '1.2.13';
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];

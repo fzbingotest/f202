@@ -102,6 +102,8 @@ class Global {
   static double get updateIconHeight => ScreenUtil().setHeight(200);
   static double get appHeight => ScreenUtil().setHeight(3120);
   static double get appWidth => ScreenUtil().setWidth(1440);
+  static double get eqMin => -6.0;
+  static double get eqMax => 6.0;
 
 
   static double get infoItemTitleWidth => ScreenUtil().setWidth(460);

@@ -381,6 +381,8 @@ public class MainActivity extends FlutterActivity
         catch (Exception e){
             e.printStackTrace();
         }
+        if( battery >= 97 )
+            battery = 100;
         return battery;
     }
 
@@ -1477,24 +1479,24 @@ public class MainActivity extends FlutterActivity
     private DownloadManager mDownloadManager;
     private long mTaskId;
 
-    //使用系统下载器下载
+    //
     private void downloadFile(String versionUrl, String fileName) {
-        //创建下载任务
+        //
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(versionUrl));
-        request.setAllowedOverRoaming(false);//漫游网络是否可以下载
+        request.setAllowedOverRoaming(false);//
         Log.i(TAG, " downloadFile " + versionUrl);
 
 
-        //设置文件类型，可以在下载结束后自动打开该文件
+        //
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(versionUrl));
         request.setMimeType(mimeString);
 
-        //在通知栏中显示，默认就是显示的
+        //
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
         request.setVisibleInDownloadsUi(true);
 
-        //sdcard的目录下的download文件夹，必须设置
+        //
         //request.setDestinationInExternalFilesDir(this.getContext(),"",versionUrl.substring(versionUrl.lastIndexOf("/") + 1) );
         String cachePath = Objects.requireNonNull(this.getContext().getExternalFilesDir("Download")).getPath();
         //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -1503,27 +1505,27 @@ public class MainActivity extends FlutterActivity
             Log.i(TAG, "delfile" + mFile.delete());
         Log.i(TAG, " mFile " + mFile.toString()+ "uri = "+ Uri.fromFile(mFile));
         //request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, versionUrl.substring(versionUrl.lastIndexOf("/") + 1));
-        //request.setDestinationInExternalFilesDir(),也可以自己制定下载路径
+        //request.setDestinationInExternalFilesDir(),
         request.setDestinationUri(Uri.fromFile(mFile));
-        //将下载请求加入下载队列
+        //
         mDownloadManager = (DownloadManager) this.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        //加入下载队列后会给该任务返回一个long型的id，
-        //通过该id可以取消任务，重启任务等等，看上面源码中框起来的方法
+        //
+        //
         assert mDownloadManager != null;
         mTaskId = mDownloadManager.enqueue(request);
 
-        //注册广播接收者，监听下载状态
+        //
         this.getContext().registerReceiver(receiver,
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
-    //广播接受者，接收下载状态
+    //
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             checkDownloadStatus();//检查下载状态
         }
     };
-    //检查下载状态
+    //
     private void checkDownloadStatus() {
         DownloadManager.Query query = new DownloadManager.Query();
         query.setFilterById(mTaskId);//筛选下载任务，传入任务ID，可变参数
@@ -1533,14 +1535,14 @@ public class MainActivity extends FlutterActivity
             int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
             switch (status) {
                 case DownloadManager.STATUS_PAUSED:
-                    Log.i(TAG, ">>>下载暂停");
+                    Log.i(TAG, ">>>paused");
                 case DownloadManager.STATUS_PENDING:
-                    Log.i(TAG, ">>>下载延迟");
+                    Log.i(TAG, ">>>pending");
                 case DownloadManager.STATUS_RUNNING:
-                    Log.i(TAG, ">>>正在下载");
+                    Log.i(TAG, ">>>downloading");
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
-                    Log.i(TAG, ">>>下载完成");
+                    Log.i(TAG, ">>>done");
                     //下载完成安装APK
                     //downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + File.separator + versionName;
                     //installAPK(new File(downloadPath));
@@ -1549,7 +1551,7 @@ public class MainActivity extends FlutterActivity
                     break;
                 case DownloadManager.STATUS_FAILED:
                     int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
-                    Log.i(TAG, ">>>下载失败 = " + reason);
+                    Log.i(TAG, ">>>failed = " + reason);
                     break;
             }
         }

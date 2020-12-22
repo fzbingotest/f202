@@ -217,6 +217,10 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
         key1 = key+i.toString();
         if(res[key1] != null && _keyValid(res[key1])) {
           _seztoList[i] = res[key1].toDouble();
+          if(_seztoList[i] < Global.eqMin)
+            _seztoList[i] = Global.eqMin;
+          else if (_seztoList[i] > Global.eqMax)
+            _seztoList[i] = Global.eqMax;
           setCustomEq(i, res[key1].toInt());
         }
       }
@@ -329,7 +333,7 @@ class _EqualizeViewState extends State<EqualizeView> {
                 SizedBox(child: Text(_listTitle[f], style: Global.eqHzTextStyle,), width: Global.eqItemTitleWidth),
                   SizedBox( width: Global.columnPadding ),
                   Expanded(
-                    child: CupertinoSlider(value: widget.listGain[f],min: -12.0,max: 12.0,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
+                    child: CupertinoSlider(value: widget.listGain[f],min: Global.eqMin,max: Global.eqMax,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
                         onChanged: (double value) {
                           if(widget.type.contains('Sezto')) {
                             int temp = value.round();
