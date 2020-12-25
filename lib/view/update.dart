@@ -120,7 +120,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/fm7840_release.json", (data) {
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/fm6840_release.json", (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);

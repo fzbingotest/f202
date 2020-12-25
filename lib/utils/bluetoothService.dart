@@ -17,6 +17,7 @@ class bluetoothService with ChangeNotifier {
   static const _Right_tap = 3;
   static bluetoothService _instance ;
   VoidCallback _noDeviceListener;
+  VoidCallback _deviceValidListener;
 
   StreamSubscription _subscription;
   bool isInitial = false;
@@ -27,7 +28,7 @@ class bluetoothService with ChangeNotifier {
   String status ='';
   String signal = '';
   String firmware = '';
-  String appVersion = '1.1.7';
+  String appVersion = '1.1.8';
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
@@ -41,6 +42,7 @@ class bluetoothService with ChangeNotifier {
       isInitial = true;
       _instance = this;
       _noDeviceListener = null;
+      _deviceValidListener = null;
     }
     return _instance;
   }
@@ -53,6 +55,11 @@ class bluetoothService with ChangeNotifier {
   {
     _noDeviceListener = a;
   }
+  void setDeviceValidCallback(VoidCallback a)
+  {
+    _deviceValidListener = a;
+  }
+
 
   void _onEvent(Object event) {
     print(TAG + " _onEvent _result ---->"+ event.toString());
@@ -93,14 +100,23 @@ class bluetoothService with ChangeNotifier {
         model = res['model'];
         address = res['address'];
 
-        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') &&_noDeviceListener!= null)
+        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('Palovue') == false) {
+          if(_noDeviceListener!= null)
           _noDeviceListener();
+        }
+        else if (_deviceValidListener != null)
+          _deviceValidListener();
         notifyListeners();
         break;
       case 'button':
         print(TAG +'get button' + res['value']);
         _decodeButtonFunc(res['value']);
         notifyListeners();
+        break;
+      case 'service':
+        print(TAG +'get service' + res['value']);
+        if(res['value'].startsWith('connect')== true && _deviceValidListener != null)
+          _deviceValidListener();
         break;
 
     }

@@ -1,6 +1,7 @@
 package com.palovue.fm6840;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,6 +39,7 @@ import java.util.Set;
 import java.lang.reflect.Method;
 
 import com.palovue.fm6840.gaia.InformationGaiaManager;
+import com.palovue.fm6840.model.gatt.GattServiceBattery;
 import com.palovue.fm6840.receivers.BluetoothStateReceiver;
 import com.palovue.fm6840.services.BluetoothService;
 import com.palovue.fm6840.services.GAIABREDRService;
@@ -59,6 +61,7 @@ import androidx.annotation.NonNull;
 public class MainActivity extends FlutterActivity
         implements BluetoothStateReceiver.BroadcastReceiverListener, InformationGaiaManager.GaiaManagerListener{
     private static final String TAG = "MainActivity";
+    private static final String PREFIX_FENDER = "Palovue";
     private boolean DEBUG = Consts.DEBUG;
     private static final String CHANNEL= "palovue.fm6840/call_native";
     private MethodChannel methodChannel;
@@ -82,12 +85,15 @@ public class MainActivity extends FlutterActivity
     private long mStartTime = 0;
     private int isUploaded = 0;
     private File mFile = null;
-    private int mBatteryLevel = 0;
-
+    private BluetoothProfile mProxyA2dp = null;
+    private BluetoothProfile mProxyHeadset = null;
+    private BluetoothDevice mDeviceA2dp = null;
+    private BluetoothDevice mDeviceHeadset = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.init();
+        getProfile();
     }
 
     @Override // Activity from ServiceActivity
@@ -251,8 +257,7 @@ public class MainActivity extends FlutterActivity
         eqEventChannel = new EventChannel(flutterEngine.getDartExecutor(), EQ_EVENT_CHANNEL);
         eqEventChannel.setStreamHandler(
             new EventChannel.StreamHandler() {
-                // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体。
-                @Override
+                // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体�?                @Override
                 public void onListen(Object arguments, EventChannel.EventSink events) {
                     eqEventSink = events;
                 }
@@ -268,8 +273,7 @@ public class MainActivity extends FlutterActivity
         updateEventChannel = new EventChannel(flutterEngine.getDartExecutor(), UPDATE_EVENT_CHANNEL);
         updateEventChannel.setStreamHandler(
                 new EventChannel.StreamHandler() {
-                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体。
-                    @Override
+                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体�?                    @Override
                     public void onListen(Object arguments, EventChannel.EventSink events) {
                         updateEventSink = events;
                     }
@@ -285,8 +289,7 @@ public class MainActivity extends FlutterActivity
         bassEventChannel = new EventChannel(flutterEngine.getDartExecutor(), BASS_EVENT_CHANNEL);
         bassEventChannel.setStreamHandler(
                 new EventChannel.StreamHandler() {
-                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体。
-                    @Override
+                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体�?                    @Override
                     public void onListen(Object arguments, EventChannel.EventSink events) {
                         bassEventSink = events;
                     }
@@ -302,8 +305,7 @@ public class MainActivity extends FlutterActivity
         eventChannel = new EventChannel(flutterEngine.getDartExecutor(), EVENT_CHANNEL);
         eventChannel.setStreamHandler(
                 new EventChannel.StreamHandler() {
-                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体。
-                    @Override
+                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体�?                    @Override
                     public void onListen(Object arguments, EventChannel.EventSink events) {
                         eventSink = events;
                     }
@@ -318,8 +320,7 @@ public class MainActivity extends FlutterActivity
         mainEventChannel = new EventChannel(flutterEngine.getDartExecutor(), MAIN_EVENT_CHANNEL);
         mainEventChannel.setStreamHandler(
                 new EventChannel.StreamHandler() {
-                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体。
-                    @Override
+                    // 这个onListen是Flutter端开始监听这个channel时的回调，第二个参数 EventSink是用来传数据的载体�?                    @Override
                     public void onListen(Object arguments, EventChannel.EventSink events) {
                         mainEventSink = events;
                     }
@@ -333,37 +334,181 @@ public class MainActivity extends FlutterActivity
         );
     }
 
-    //获取已连接的蓝牙设备
+    private void getProfile(){
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        adapter.getProfileProxy(getContext(), new BluetoothProfile.ServiceListener() {
+            @Override
+            public void onServiceDisconnected(int profile) {
+                Log.d(TAG,", I got no A2DP " + "profile = "+ profile);
+                mProxyA2dp = null;
+                mDeviceA2dp = null;
+            }
+
+            @Override
+            public void onServiceConnected(int profile, BluetoothProfile proxy) {
+                Log.d(TAG,", I got A2DP " + "profile = "+ profile);
+
+            }
+        }, BluetoothProfile.A2DP);
+
+        adapter.getProfileProxy(getContext(), new BluetoothProfile.ServiceListener() {
+            @Override
+            public void onServiceDisconnected(int profile) {
+                Log.d(TAG,", I got no HEADSET " + "profile = "+ profile);
+                mProxyHeadset = null;
+                mDeviceHeadset = null;
+            }
+
+            @Override
+            public void onServiceConnected(int profile, BluetoothProfile proxy) {
+                Log.d(TAG,", I got HEADSET " + "profile = "+ profile);
+                mProxyHeadset = proxy;
+            }
+        }, BluetoothProfile.HEADSET);
+
+    }
+
+    private int getBatteryLevel(BluetoothDevice device){
+        int battery = 50;
+        try {
+            Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
+            batteryMethod.setAccessible(true);
+            battery = (int) batteryMethod.invoke(device, (Object[]) null);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return battery;
+    }
+
+    private void checkProxyConnectedDevice(){
+
+        List<BluetoothDevice> mDevices;
+        if(mProxyHeadset!=null) {
+            mDevices = mProxyHeadset.getConnectedDevices();
+            if (mDevices != null && mDevices.size() > 0) {
+                for (BluetoothDevice device : mDevices) {
+                    if (device.getName().startsWith(PREFIX_FENDER))
+                        mDeviceHeadset = device;
+                }
+            } else {
+                mDeviceHeadset = null;
+            }
+        }
+        if(mProxyA2dp!=null) {
+            mDevices = mProxyA2dp.getConnectedDevices();
+            if (mDevices != null && mDevices.size() > 0) {
+                for (BluetoothDevice device : mDevices) {
+                    Log.d(TAG, device.getName() + ", I got it A2DP " + device.getAddress());
+                    if (device.getName().startsWith(PREFIX_FENDER))
+                        mDeviceA2dp = device;
+                }
+            } else {
+                mDeviceA2dp = null;
+            }
+        }
+    }
+    //
     private void getConnectedBtDevice(MethodChannel.Result result){
+        if(mProxyA2dp == null || mProxyHeadset == null)
+            getProfile();
+        checkProxyConnectedDevice();
+        Map<String, String> mainMap = new HashMap<>();
+        if(mDeviceHeadset == null && mDeviceA2dp == null) {
+            if(mainEventSink != null)
+            {
+                mainMap.put("key", "device");
+                mainMap.put("model", "none");
+                mainMap.put("address","none");
+                mainEventSink.success(mainMap);
+            }
+            mConnectHandler.postDelayed(mReconnect, 1000);
+            return;
+        }
+        BluetoothDevice device;
+        if(mDeviceHeadset != null)
+            device = mDeviceHeadset;
+        else
+            device = mDeviceA2dp;
+
+        if(mService!= null)
+        {
+            Log.d(TAG,"service " +mService.getDevice().getAddress() + " device = "+ device.getAddress());
+            if(mService.getDevice().getAddress().equals(device.getAddress()))
+            //if(mService.getDevice() == device)
+            {
+                if(mService.isGaiaReady() == false)
+                    mService.reconnectToDevice();
+                else
+                    getInformationFromDevice();
+            }
+            else {
+                mService.disconnectDevice();
+                mService.connectToDevice(device.getAddress());
+            }
+        }
+        else
+            start_bdr_devices(device);
+        if(mainEventSink != null)
+        {
+            mainMap.put("key", "device");
+            mainMap.put("model", device.getName());
+            mainMap.put("address",device.getAddress());
+            mainEventSink.success(mainMap);
+        }
+    }
+/*    private void getConnectedBtDevice(MethodChannel.Result result){
         if(mMap == null)
             mMap = new HashMap<>();
         else
             mMap.clear();
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        Set<BluetoothDevice> mydevices = adapter.getBondedDevices();
+        if (mydevices.size() > 0) {
+            for (BluetoothDevice mydevice : mydevices) {
+                String str = mydevice.getName() + "|" + mydevice.getAddress();
+                Log.i(TAG,"my device -----" + str);
+            }
+        }
+        int a2dp = adapter.getProfileConnectionState(BluetoothProfile.A2DP);
+        int headset = adapter.getProfileConnectionState(BluetoothProfile.HEADSET);
+        int gatt = adapter.getProfileConnectionState(BluetoothProfile.GATT);
+        int gatt_server = adapter.getProfileConnectionState(BluetoothProfile.GATT_SERVER);
+        Log.i(TAG,"Profile -----" + a2dp + "," + headset  + "," + gatt  + "," +  gatt_server);
+
+        //getProfile();
         Class<BluetoothAdapter> bluetoothAdapterClass = BluetoothAdapter.class;//得到BluetoothAdapter的Class对象
         try {
 
-            //得到连接状态的方法
+            //
             Method method = bluetoothAdapterClass.getDeclaredMethod("getConnectionState", (Class[]) null);
-            //打开权限
+            //
             method.setAccessible(true);
             int state = (int) method.invoke(adapter, (Object[]) null);
             if(state == BluetoothAdapter.STATE_CONNECTED){
                 Log.i("BLUETOOTH","BluetoothAdapter.STATE_CONNECTED");
-                Set<BluetoothDevice> devices = adapter.getBondedDevices(); //集合里面包括已绑定的设备和已连接的设备
+                Set<BluetoothDevice> devices = adapter.getBondedDevices(); //
                 Log.i("BLUETOOTH","devices:"+devices.size());
                 for(BluetoothDevice device : devices){
                     Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
                     boolean isConnected = (boolean) isConnectedMethod.invoke(device, (Object[]) null);
-                    if(isConnected){ //根据状态来区分是已连接的还是已绑定的，isConnected为true表示是已连接状态。
+                    if(isConnected){ //
                         Log.i("BLUETOOTH-dh","connected:"+device.getName());
-                        Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
-                        batteryMethod.setAccessible(true);
-                        int battery = (int) batteryMethod.invoke(device, (Object[]) null);
-                        Log.i(TAG,"Battery:"+battery);
-                        //start bdr
-                        mBatteryLevel = battery;
-                        start_bdr_devices(device);
+                        try {
+                            Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
+                            batteryMethod.setAccessible(true);
+                            int battery = (int) batteryMethod.invoke(device, (Object[]) null);
+                            Log.i(TAG, "Battery:" + battery);
+                            //start bdr
+                            mBatteryLevel = battery;
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                            mBatteryLevel = 50;
+                        }
+                        if(device.getName().startsWith("Fender"))
+                            start_bdr_devices(device);
                         mMap.put("Model", device.getName());
                         mMap.put("Address",device.getAddress());
                         //getInformationFromDevice();
@@ -396,11 +541,12 @@ public class MainActivity extends FlutterActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    //获取已连接的蓝牙设备
+    //
     private void tryConnectedBtDevice(){
-        if(mMap == null)
+        getConnectedBtDevice(null);
+/*        if(mMap == null)
             mMap = new HashMap<>();
         else
             mMap.clear();
@@ -408,19 +554,19 @@ public class MainActivity extends FlutterActivity
         Class<BluetoothAdapter> bluetoothAdapterClass = BluetoothAdapter.class;//得到BluetoothAdapter的Class对象
         try {
 
-            //得到连接状态的方法
+            //
             Method method = bluetoothAdapterClass.getDeclaredMethod("getConnectionState", (Class[]) null);
-            //打开权限
+            //
             method.setAccessible(true);
             int state = (int) method.invoke(adapter, (Object[]) null);
             if(state == BluetoothAdapter.STATE_CONNECTED){
                 Log.i("BLUETOOTH","BluetoothAdapter.STATE_CONNECTED");
-                Set<BluetoothDevice> devices = adapter.getBondedDevices(); //集合里面包括已绑定的设备和已连接的设备
+                Set<BluetoothDevice> devices = adapter.getBondedDevices(); //
                 Log.i("BLUETOOTH","devices:"+devices.size());
                 for(BluetoothDevice device : devices){
                     Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
                     boolean isConnected = (boolean) isConnectedMethod.invoke(device, (Object[]) null);
-                    if(isConnected){ //根据状态来区分是已连接的还是已绑定的，isConnected为true表示是已连接状态。
+                    if(isConnected){ //
                         Log.i("BLUETOOTH-dh","connected:"+device.getName());
                         Method batteryMethod = BluetoothDevice.class.getDeclaredMethod("getBatteryLevel", (Class[]) null);
                         batteryMethod.setAccessible(true);
@@ -436,16 +582,39 @@ public class MainActivity extends FlutterActivity
                             mainMap.put("address",device.getAddress());
                             mainEventSink.success(mainMap);
                         }
-                        start_bdr_devices(device);
+                        if(device.getName().startsWith("Fender"))
+                            start_bdr_devices(device);
                         return;
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
+    private void updateBatteryLevels(int instance) {
+        // get the corresponding Battery Service information
+        GattServiceBattery service = mService.getGattSupport().gattServiceBatteries.get(instance);
+        // get the index of the Battery Service to know its place in the grid
+        int index = mService.getGattSupport().gattServiceBatteries.indexOfKey(instance);
 
+        // values shouldn't be empty and should match the Grid Layout information
+        if (service != null && index >= 0 ) {
+            int level = service.getBatteryLevel();
+            Map<String, String> map = new HashMap<>();
+            String text = ""+level;
+            map.put("Battery", text );
+            Log.i(TAG, " onGetBatteryLevel " +  map.toString());
+            if(eventSink != null)
+                eventSink.success(map);
+            if(mainEventSink != null)
+            {
+                Map<String, String> mainMap = new HashMap<>();
+                mainMap.put("key", "battery");
+                mainMap.put("value", text);
+                mainEventSink.success(mainMap);
+            }        }
+    }
     private IntentFilter makeFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -754,7 +923,10 @@ public class MainActivity extends FlutterActivity
     private @BluetoothService.Transport int mTransport = BluetoothService.Transport.UNKNOWN;
 
     // ====== SERVICE METHODS =======================================================================
-
+    private final Handler mConnectHandler = new Handler();
+    private final Runnable mReconnect = () -> {
+        tryConnectedBtDevice();
+     };
     protected void handleMessageFromService(Message msg) {
         //noinspection UnusedAssignment
         String handleMessage = "Handle a message from BLE service: ";
@@ -785,9 +957,17 @@ public class MainActivity extends FlutterActivity
                         mainMap.put("model","none");
                         mainMap.put("address","none");
                         mainEventSink.success(mainMap);
-                        mService = null;
+                        //mService = null;
+                        mConnectHandler.postDelayed(mReconnect, 1000);
                     }
                    // mService.disconnectDevice();
+                }
+                else if (mainEventSink != null && connectionState == BluetoothService.State.CONNECTED )
+                {
+                    Map<String, String> mainMap = new HashMap<>();
+                    mainMap.put("key", "service");
+                    mainMap.put("value", "connect");
+                    mainEventSink.success(mainMap);
                 }
             }
                 if (DEBUG) Log.d(TAG, handleMessage + "CONNECTION_STATE_HAS_CHANGED: " + stateLabel);
@@ -1073,6 +1253,10 @@ public class MainActivity extends FlutterActivity
                 break;
         }
         //map.put(control, activated );
+        Log.i(TAG, " isGattReady " +  mService.isGattReady());
+        Log.i(TAG, " getGattSupport " +  mService.getGattSupport());
+        Log.i(TAG, " getGattSupport " +  mService.requestBatteryLevels());
+
         Log.i(TAG, " onGetControlActivationState " +  map.toString());
 
     }
@@ -1114,7 +1298,6 @@ public class MainActivity extends FlutterActivity
         Log.i(TAG, " onGetButtonFunction " + val);
         if(mainEventSink != null)
         {
-            tryConnectedBtDevice();
             Map<String, String> mainMap = new HashMap<>();
             mainMap.put("key", "button");
             mainMap.put("value", String.valueOf(val));
@@ -1152,17 +1335,17 @@ public class MainActivity extends FlutterActivity
     @Override
     public void onGetBatteryLevel(int level) {
         Map<String, String> map = new HashMap<>();
-        String text = ""+mBatteryLevel;
+        level = getBatteryLevel(mDeviceHeadset);
+        String text = ""+level;
         map.put("Battery", text );
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
         if(eventSink != null)
             eventSink.success(map);
         if(mainEventSink != null)
         {
-            tryConnectedBtDevice();
             Map<String, String> mainMap = new HashMap<>();
             mainMap.put("key", "battery");
-            mainMap.put("value", String.valueOf(mBatteryLevel));
+            mainMap.put("value", text);
             mainEventSink.success(mainMap);
         }
     }
