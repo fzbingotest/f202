@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/httpControl.dart';
-import 'package:Tour/utils/myLocalizations.dart';
+import '../utils/const.dart';
+import '../utils/httpControl.dart';
+import '../utils/myLocalizations.dart';
 import 'package:wakelock/wakelock.dart';
-import 'package:Tour/utils/bluetoothService.dart';
+import '../utils/bluetoothService.dart';
 
 class UpdatePage extends StatefulWidget{
   @override
@@ -28,9 +28,9 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   Color _buttonColor = Colors.white;
   //Animation<double> _animation;
   AnimationController _animationController;
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.iSound/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/update_event_native');
+  static const EventChannel eventChannel =  const EventChannel('palovue.iSound/update_event_native');
   StreamSubscription _subscription;
 
   @override
@@ -114,7 +114,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json", (data) {
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/f202/release/f202_ota_release.json", (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);

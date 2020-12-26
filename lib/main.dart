@@ -1,16 +1,14 @@
-import 'package:Tour/index/guide.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/myI18nWidget.dart';
-import 'package:Tour/utils/myLocalizations.dart';
-import 'package:Tour/utils/myLocalizationsDelegate.dart';
-
+import 'utils/const.dart';
+import 'utils/myI18nWidget.dart';
+import 'utils/myLocalizations.dart';
+import 'utils/myLocalizationsDelegate.dart';
+import 'index/guide.dart';
 
 import 'index/index.dart';
-import 'utils/const.dart';
 void main() {
   // 强制竖屏
   WidgetsFlutterBinding.ensureInitialized();

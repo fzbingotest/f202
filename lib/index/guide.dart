@@ -1,14 +1,9 @@
-import 'package:Tour/utils/bluetoothService.dart';
+import '../utils/myLocalizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/myLocalizations.dart';
+import '../utils/bluetoothService.dart';
 import '../utils/const.dart';
-import 'navigation_icon_view.dart';
-
-import 'package:provider/provider.dart';
 
 //
 class Guide extends StatefulWidget {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.fender.Tour">
+    package="com.palovue.iSound">
 
     <!--
      io.flutter.app.FlutterApplication is an android.app.Application that
@@ -20,11 +20,11 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:icon="@mipmap/icon"
-        android:label="Fender Tour"
+        android:label="Palovue iSound"
         tools:replace="android:label">
         <provider
-            android:name=".tourSliceProvider"
-            android:authorities="com.fender.Tour"
+            android:name="com.palovue.iSound.tourSliceProvider"
+            android:authorities="com.palovue.iSound"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -39,7 +39,7 @@
         </provider>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.palovue.iSound.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
@@ -74,10 +74,10 @@
         </activity>
 
         <service
-            android:name=".services.GAIAGATTBLEService"
+            android:name="com.palovue.iSound.services.GAIAGATTBLEService"
             android:exported="false" />
         <service
-            android:name=".services.GAIABREDRService"
+            android:name="com.palovue.iSound.services.GAIABREDRService"
             android:exported="false" />
         <!--
  Don't delete the meta-data below.

@@ -1,17 +1,17 @@
 import 'dart:io';
 
-import 'package:Tour/utils/bluetoothService.dart';
+import '../utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/myLocalizations.dart';
-import 'package:Tour/view/settings.dart';
-import 'package:Tour/view/equalize.dart';
-import 'package:Tour/view/update.dart';
-import 'package:Tour/view/info.dart';
-import 'package:Tour/view/config.dart';
+import '../utils/const.dart';
+import '../utils/myLocalizations.dart';
+import '../view/settings.dart';
+import '../view/equalize.dart';
+import '../view/update.dart';
+import '../view/info.dart';
+import '../view/config.dart';
 
 import '../utils/const.dart';
 import 'navigation_icon_view.dart';
@@ -31,7 +31,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
   List<NavigationIconView> _navigationViews;  //
   List<StatefulWidget> _pageList;   //
   StatefulWidget _currentPage;  //
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.iSound/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   String _model = 'none';
   int _step = 1;
@@ -123,7 +123,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
       builder: (context) {
         return CupertinoAlertDialog(
           title: Text(MyLocalizations.of(context).getText('Warning')),
-          content: Text(MyLocalizations.of(context).getText('No_fender_connected')),
+          content: Text(MyLocalizations.of(context).getText('No_palovue_connected')),
           actions: <Widget>[
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('No')),

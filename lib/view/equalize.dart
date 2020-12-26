@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/myLocalizations.dart';
+import '../utils/const.dart';
+import '../utils/myLocalizations.dart';
 
 
 class EqualizePage extends StatefulWidget {
@@ -30,9 +30,9 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   //final List<double> _maleList   = [2,3,3,-2,-3,-4,-3];
   final List<double> _maleList   = [2,3,2,0,-1,-1,-2];
   final List<double> _customizeList   = [0,0,0,0,0,0,0];
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.iSound/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/eq_event_native');
+  static const EventChannel eventChannel =  const EventChannel('palovue.iSound/eq_event_native');
   StreamSubscription _subscription;
   void buildEqList()
   {
@@ -371,7 +371,7 @@ class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTicke
   TabController _tabController;
   List<Widget> _eqList;
   Color _resetColor = Colors.white;
-  final List<double> _fenderList     = [7,3,2,2,1,4,11];
+  final List<double> _palovueList     = [7,3,2,2,1,4,11];
   final List<double> _seztoList   = [4,0,4,8,8,4,7];
   final List<double> _electronicList = [9,3,5,-6,-4,5,3];
   final List<double> _classicList    = [-6,-1,-4,2,-3,0,9];
@@ -383,7 +383,7 @@ class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTicke
   {
     _eqList =  <StatefulWidget>[
       new EqualizeView(type: 'Normal', listGain: _customizeList),
-      new EqualizeView(type: 'Fender', listGain: _fenderList),
+      new EqualizeView(type: 'Palovue', listGain: _palovueList),
       new EqualizeView(type: 'Sezto', listGain: _seztoList),
       new EqualizeView(type: 'Electronic', listGain: _electronicList),
       new EqualizeView(type: 'Classical', listGain: _classicList),

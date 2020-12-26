@@ -1,9 +1,9 @@
-import 'package:Tour/index/guide.dart';
-import 'package:Tour/utils/bluetoothService.dart';
+import '../index/guide.dart';
+import '../utils/bluetoothService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Tour/utils/const.dart';
-import 'package:Tour/utils/myLocalizations.dart';
+import '../utils/const.dart';
+import '../utils/myLocalizations.dart';
 import 'package:provider/provider.dart';
 
 class InfoPage extends StatefulWidget{

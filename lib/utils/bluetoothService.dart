@@ -6,9 +6,9 @@ import 'package:flutter/services.dart';
 // ignore: camel_case_types
 class bluetoothService with ChangeNotifier {
   static const String TAG = 'bluetoothService';
-  static const String CHANNEL_NAME="fender.Tour/call_native";
+  static const String CHANNEL_NAME="palovue.iSound/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
-  static const EventChannel eventChannel =  const EventChannel('fender.Tour/main_event_native');
+  static const EventChannel eventChannel =  const EventChannel('palovue.iSound/main_event_native');
   static const _LeftHold= 2;
   static const _RightHold = 5;
   static const _Left2tap = 1;
@@ -63,7 +63,7 @@ class bluetoothService with ChangeNotifier {
 
   bool isRConnected()
   {
-    return model.contains('TOUR R');
+    return model.contains('iSound R');
   }
 
   void _onEvent(Object event) {
@@ -75,7 +75,7 @@ class bluetoothService with ChangeNotifier {
         print(TAG +'get Firmware' + res['value']);
         print(TAG +'get Box battery' + res['Box battery']);
         //int.parse(res['Box battery']);
-        if(model.contains('TOUR R')){
+        if(model.contains('iSound R')){
           firmware = res['Box battery'];
           boxBattery= res['value'];
         }
@@ -111,7 +111,7 @@ class bluetoothService with ChangeNotifier {
         model = res['model'];
         address = res['address'];
 
-        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('Fender') == false) {
+        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('PALOVUE') == false) {
           if(_noDeviceListener!= null)
           _noDeviceListener();
         }
