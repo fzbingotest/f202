@@ -58,6 +58,7 @@ class Global {
   static double get bottomViewWidth => ScreenUtil().setWidth(250);
   static double get bottomViewHeight => ScreenUtil().setHeight(300);
   static double get appBodyHeight => ScreenUtil().setHeight(3120 -300 - 240- 300);
+  static double get guideBodyHeight => ScreenUtil().setHeight(3120 -300 - 240- 200);
 
   ///setting view
   static double get bodyPadding => ScreenUtil().setWidth(160);

@@ -80,7 +80,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
                 height: Global.bottomViewHeight/2,
               ),*/
               PreferredSize(
-                child: Image.asset('assets/images/logor.png', height: Global.bottomLogoHeight, width: Global.bottomLogoWidth),
+                child: Image.asset('assets/images/logop.png', height: Global.bottomLogoHeight-10, width: Global.bottomLogoWidth),
                 preferredSize: Size(Global.bottomViewWidth, Global.bottomViewHeight),
               ),
               Listener(
@@ -92,8 +92,8 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
                 /*child: SizedBox(
                   width: Global.appWidth, height: Global.appBodyHeight,*/
                 child: Container(
-                    padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding, Global.bodyPadding, 0),
-                  height: Global.appBodyHeight,
+                    padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding*0.8, Global.bodyPadding, 0),
+                  height: Global.guideBodyHeight,
                   child:  _getPage(),
                 ),
               ),

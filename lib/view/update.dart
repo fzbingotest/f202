@@ -114,7 +114,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/f202/release/f202_ota_release.json", (data) {
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json", (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);
@@ -320,16 +320,17 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           width: Global.updateProcessWidth,
           child: RotatedBox(
               quarterTurns: 3, //旋转90度(1/4圈)
-              child: new LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
+              child: new CircularProgressIndicator(
+                backgroundColor: Color.fromARGB(255, 48, 48, 48),
+                strokeWidth: 8.0,
                 value: _step,
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.red),
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blueAccent),
               )
           ),
         ),
         Container(
-            height: Global.updateImgHeight,
-            width: Global.updateImgWidth,
+            height: Global.updateImgHeight/2,
+            width: Global.updateImgWidth/2,
             child:  Image.asset(
             'assets/images/update.png', height: Global.updateImgHeight,
             width: Global.updateImgWidth),
@@ -370,12 +371,23 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               ),
             ],
           ),
-
           Container(
-            height: Global.updateBodyHeight,
-            child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+            alignment: Alignment.bottomCenter,
+            height: Global.updateIconHeight,
+            child: _isUpdating? Text(
+              (_step*100).toStringAsFixed(2)+'%',
+              style: Global.contentTextStyle,
+            ) : Text(' '),
           ),
 
+          Container(
+            height: Global.updateBodyHeight*0.7,
+            child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            height: Global.updateIconHeight,
+          ),
           SizedBox(
             //width: 50,
             height: Global.updateIconHeight,
@@ -387,7 +399,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_isUpdating && _currentVersion.compareTo(_version)!=0 && _currentVersion.compareTo('0.0.0') !=0)
+                if(!_isUpdating && /*_currentVersion.compareTo(_version)!=0 && */_currentVersion.compareTo('0.0.0') !=0)
                   _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();

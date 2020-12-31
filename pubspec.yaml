@@ -57,12 +57,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/logor.png
+    - assets/images/logop.png
+    - assets/images/black-brushed.png
     - assets/images/tab_enhance.png
     - assets/images/tab_eq.png
     - assets/images/tab_info.png
     - assets/images/tab_update.png
-    - assets/images/setting.png
+    - assets/images/tab_setting.png
     - assets/images/enhance_0.png
     - assets/images/enhance_1.png
     - assets/images/update.png

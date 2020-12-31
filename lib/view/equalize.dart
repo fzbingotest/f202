@@ -260,13 +260,16 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
         child:  Column(
           children: <Widget>[
             Container(
-              height: Global.tabHeight,
+              height: Global.tabHeight*1.5,
               child: TabBar(
-                unselectedLabelColor: Colors.grey,
+                /*unselectedLabelColor: Colors.red,*/
                 //indicatorSize: TabBarIndicatorSize.label,
-                indicatorPadding: EdgeInsets.only(left: 30, right: 30),
+                /*labelPadding: EdgeInsets.only(left: 20, right: 20, bottom: 80),*/
+                  indicatorSize: TabBarIndicatorSize.tab,
+                /*labelColor:Colors.blueGrey,*/
+                //indicatorColor:Colors.blueGrey,
                 indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                   color: Colors.blueGrey),
                 isScrollable:true,
                 tabs: <Widget>[

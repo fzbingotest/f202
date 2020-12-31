@@ -51,8 +51,10 @@ class MyApp extends StatelessWidget {
       ],
       //title: 'Flutter Demo',
         theme: ThemeData(
-          primaryColor: Color.fromARGB(255,52,52,52),
-          canvasColor: Color.fromARGB(255,52,52,52),
+          //primaryColor: Color.fromARGB(255,52,52,52),
+          //canvasColor: Color.fromARGB(255,52,52,52),
+          primaryColor:Colors.black,
+          canvasColor:Colors.black,
           brightness: Brightness.dark,
           // This makes the visual density adapt to the platform that you run
           // the app on. For desktop platforms, the controls will be smaller and

@@ -29,7 +29,7 @@ class bluetoothService with ChangeNotifier {
   String status ='';
   String signal = '';
   String firmware = '';
-  String appVersion = '1.2.13';
+  String appVersion = '1.2.1';
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
