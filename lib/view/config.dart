@@ -47,6 +47,25 @@ class _ConfigsPageState extends State<ConfigsPage> {
           ),
 
           Container(
+            height: Global.titleHeight/2,
+            child: Selector(builder:  (BuildContext context, bool data, Widget child) {
+              return Text(
+                MyLocalizations.of(Global.context).getText(data ?'high_gain':'low_gain'),
+                style: data ? Global.contentTextRed:Global.contentTextGreen, // Theme.of(context).textTheme.headline3,
+                textAlign: TextAlign.center,
+              );
+            }, selector: (BuildContext context, bluetoothService btService) {
+              //return data to builder
+              return btService.bass;
+            },),
+            /*Text(
+              MyLocalizations.of(Global.context).getText(data ?'low_gain'),
+              style: Global.contentTextStyle, // Theme.of(context).textTheme.headline3,
+              textAlign: TextAlign.center,
+            ),*/
+          ),
+
+          Container(
             height: Global.contentHeight,
             child: Selector(builder:  (BuildContext context, bool data, Widget child) {
               return Image.asset((data ?'assets/images/enhance_1.png' : 'assets/images/enhance_0.png'), height: Global.imageHeight, width: Global.imageWidth);

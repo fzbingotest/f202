@@ -1,7 +1,10 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+
+import 'httpControl.dart';
 
 // ignore: camel_case_types
 class bluetoothService with ChangeNotifier {
@@ -32,7 +35,8 @@ class bluetoothService with ChangeNotifier {
   bool bass = false;
   bool inGuide = true;
   List<int> buttonFunction = [0,0,0,0,0,0];
-
+  String version = 'unknown';
+  String updateUrl = 'abc';
   static get instance => _instance;
   bluetoothService initial() {
     print(TAG + "initial ---->"+ isInitial.toString());
@@ -59,7 +63,31 @@ class bluetoothService with ChangeNotifier {
   {
     _deviceValidListener = a;
   }
-
+  bool needUpdate(){
+    return version.contains('unknown')==false&&version.compareTo(firmware)!=0&&updateUrl.contains('http');
+  }
+  void _checkLatestVersion() {
+    Map<String, String> map;
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/fm6840_release.json", (data) {
+      if (data != null) {
+        //print('data = '+ data.toString());
+        final body = json.decode(data.toString());
+        map = new Map<String, String>.from(body);
+        print(map.toString());
+        String key1 =model.toLowerCase();
+        print('model =' + model+', key=');
+        if(map.containsKey(key1))
+          version = map[key1];
+        if(map.containsKey(key1 +' url'))
+          updateUrl = map[key1 +' url'];
+        print('url = ' + updateUrl);
+        print('version check = ' + version + ':' + firmware + " = " + version.compareTo(firmware).toString());
+      }
+      else {
+        print(' no data');
+      }
+    });
+  }
 
   void _onEvent(Object event) {
     print(TAG + " _onEvent _result ---->"+ event.toString());
@@ -68,10 +96,7 @@ class bluetoothService with ChangeNotifier {
     {
       case 'Firmware':
         print(TAG +'get Firmware' + res['value']);
-        print(TAG +'get Box battery' + res['Box battery']);
-        //int.parse(res['Box battery']);
         firmware = res['value'];
-        boxBattery= res['Box battery'];
         notifyListeners();
         break;
       case 'eqBank':
@@ -100,12 +125,13 @@ class bluetoothService with ChangeNotifier {
         model = res['model'];
         address = res['address'];
 
-        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.contains('Palovue') == false) {
+        if(!address.startsWith('50:0B:32')&& !address.startsWith('00:50:32') && model.toUpperCase().contains('PALOVUE') == false) {
           if(_noDeviceListener!= null)
           _noDeviceListener();
         }
         else if (_deviceValidListener != null)
           _deviceValidListener();
+        _checkLatestVersion();
         notifyListeners();
         break;
       case 'button':

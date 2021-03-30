@@ -71,18 +71,20 @@ class _SettingPageState extends State<SettingPage> {
       height: Global.tabHeight*1.2,
       child: Row(
         children: <Widget>[
-          SizedBox(child: Text( title+' :', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.5),
+          SizedBox(child: Text( MyLocalizations.of(Global.context).getText(title)+' :', style: Global.contentTextStyle), width:Global.infoItemTitleWidth*1.5),
           SizedBox( width: Global.columnPadding),
           Expanded(
             child: Selector(builder:  (BuildContext context, int data, Widget child) {
               print('InfoPageState rebuild............'+val.toString());
                return DropdownButtonHideUnderline(
                  child: DropdownButton(
+                     dropdownColor:Colors.grey,
+                     focusColor:Colors.red,
                    items: <DropdownMenuItem<int>>[
-                     DropdownMenuItem(child: Text(_getString(val,0)/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.grey),),value: 0,),
-                     DropdownMenuItem(child: Text(_getString(val,1)/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.grey),),value: 1,),
-                     DropdownMenuItem(child: Text(_getString(val,2)/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.grey),),value: 2,),
-                     DropdownMenuItem(child: Text("None"/*"~3~"*/,style: TextStyle(color: data==3?Global.appGreen:Colors.grey),),value: 3,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,0))/*"~0~"*/,style: TextStyle(color: data==0?Global.appGreen:Colors.white),),value: 0,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,1))/*"~1~"*/,style: TextStyle(color: data==1?Global.appGreen:Colors.white),),value: 1,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText(_getString(val,2))/*"~2~"*/,style: TextStyle(color: data==2?Global.appGreen:Colors.white),),value: 2,),
+                     DropdownMenuItem(child: Text(MyLocalizations.of(Global.context).getText('None')/*"~3~"*/,style: TextStyle(color: data==3?Global.appGreen:Colors.white),),value: 3,),
                    ],
                    onChanged: (selectValue){
                      bluetoothService.instance.setButtonFunction(val, selectValue);

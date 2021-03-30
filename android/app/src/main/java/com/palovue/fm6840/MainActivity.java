@@ -61,7 +61,7 @@ import androidx.annotation.NonNull;
 public class MainActivity extends FlutterActivity
         implements BluetoothStateReceiver.BroadcastReceiverListener, InformationGaiaManager.GaiaManagerListener{
     private static final String TAG = "MainActivity";
-    private static final String PREFIX_FENDER = "Palovue";
+    private static final String PREFIX_FENDER = "palovue";
     private boolean DEBUG = Consts.DEBUG;
     private static final String CHANNEL= "palovue.fm6840/call_native";
     private MethodChannel methodChannel;
@@ -388,7 +388,7 @@ public class MainActivity extends FlutterActivity
             mDevices = mProxyHeadset.getConnectedDevices();
             if (mDevices != null && mDevices.size() > 0) {
                 for (BluetoothDevice device : mDevices) {
-                    if (device.getName().startsWith(PREFIX_FENDER))
+                    if (device.getName().toLowerCase().startsWith(PREFIX_FENDER))
                         mDeviceHeadset = device;
                 }
             } else {
@@ -400,7 +400,7 @@ public class MainActivity extends FlutterActivity
             if (mDevices != null && mDevices.size() > 0) {
                 for (BluetoothDevice device : mDevices) {
                     Log.d(TAG, device.getName() + ", I got it A2DP " + device.getAddress());
-                    if (device.getName().startsWith(PREFIX_FENDER))
+                    if (device.getName().toLowerCase().startsWith(PREFIX_FENDER))
                         mDeviceA2dp = device;
                 }
             } else {
@@ -1336,6 +1336,8 @@ public class MainActivity extends FlutterActivity
     public void onGetBatteryLevel(int level) {
         Map<String, String> map = new HashMap<>();
         level = getBatteryLevel(mDeviceHeadset);
+        if(level == -1)
+            level = 100;
         String text = ""+level;
         map.put("Battery", text );
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
@@ -1376,7 +1378,13 @@ public class MainActivity extends FlutterActivity
         map.put("Firmware", APIText );
         if(updateEventSink!= null)
             updateEventSink.success(map);
-       // if(eventSink != null)
+        if(mainEventSink != null)
+        {
+            Map<String, String> mainMap = new HashMap<>();
+            mainMap.put("key", "Firmware");
+            mainMap.put("value", APIText);
+           mainEventSink.success(mainMap);
+        }      // if(eventSink != null)
             //eventSink.success("Firmware : "+APIText);
 
     }
@@ -1393,14 +1401,14 @@ public class MainActivity extends FlutterActivity
             //updateEventSink.success(map);
         if(eventSink != null)
             eventSink.success(map);
-        if(mainEventSink != null)
+/*        if(mainEventSink != null)
         {
             Map<String, String> mainMap = new HashMap<>();
             mainMap.put("key", "Firmware");
             mainMap.put("value", APPText);
             mainMap.put("Box battery", BoxText );
             mainEventSink.success(mainMap);
-        }
+        }*/
     }
 
     @Override
@@ -1534,7 +1542,7 @@ public class MainActivity extends FlutterActivity
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
                     Log.i(TAG, ">>>done");
-                    //下载完成安装APK
+                    //
                     //downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + File.separator + versionName;
                     //installAPK(new File(downloadPath));
                     mService.enableUpgrade(true);
@@ -1543,6 +1551,10 @@ public class MainActivity extends FlutterActivity
                 case DownloadManager.STATUS_FAILED:
                     int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
                     Log.i(TAG, ">>>failed = " + reason);
+                    Map<String, String> map = new HashMap<>();
+                    map.put("status", "bin file download error" );
+                    if(updateEventSink!= null)
+                        updateEventSink.success(map);
                     break;
             }
         }

@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.8+2
+version: 1.0.8+9
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -57,21 +57,24 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/palovue.png
-    - assets/images/palovue_on.png
+    - assets/images/logop.png
+    - assets/images/black-brushed.png
     - assets/images/tab_enhance.png
     - assets/images/tab_eq.png
     - assets/images/tab_info.png
     - assets/images/tab_update.png
+    - assets/images/tab_setting.png
     - assets/images/enhance_0.png
     - assets/images/enhance_1.png
-    - assets/images/linkflow.png
+    - assets/images/update.png
     - assets/images/reset.png
     - assets/images/earbud.png
     - assets/images/changingcase.png
     - assets/images/pairing0.png
     - assets/images/pairing1.png
     - assets/images/charging0.png
+    - assets/images/phone.png
+    - assets/images/button_33.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

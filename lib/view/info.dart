@@ -11,7 +11,7 @@ class InfoPage extends StatefulWidget{
 }
 
 class _InfoPageState extends State<InfoPage> {
-  final List<String> _listTitle = ['Model', /*'Address',*/'Battery',/*'Box battery','Status','Signal',*/'Firmware','Box battery','App_Version'];
+  final List<String> _listTitle = ['Model', /*'Address',*/'Battery',/*'Box battery','Status','Signal',*/'Firmware',/*'Box battery',*/'App_Version'];
   @override
   void initState() {
     super.initState();
@@ -51,8 +51,8 @@ class _InfoPageState extends State<InfoPage> {
                             //return btService.boxBattery;
                           case 2:
                             return btService.firmware;
-                          case 3:
-                            return btService.boxBattery;
+                          /*case 3:
+                            return btService.boxBattery;*/
                           default:
                             return btService.appVersion;
                         }

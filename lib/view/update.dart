@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/httpControl.dart';
 import 'package:Tour/utils/myLocalizations.dart';
+import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:Tour/utils/bluetoothService.dart';
 
@@ -18,16 +19,10 @@ class UpdatePage extends StatefulWidget{
 }
 
 class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateMixin  {
-  String _version;
-  String _currentVersion = '';
-  String _peerVersion = '';
-  String _url = 'abc';
   String _updateInfo;
   double _step = 0.00;
   bool _isUpdating = false;
   Color _buttonColor = Colors.white;
-  Timer _timer;
-  int _countdownTime = 0;
   //Animation<double> _animation;
   AnimationController _animationController;
   static const String CHANNEL_NAME="palovue.fm6840/call_native";
@@ -49,12 +44,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       setState(() {
       });
     });
-    _version = MyLocalizations.of(Global.context).getText('unknown');
-    _currentVersion = MyLocalizations.of(Global.context).getText('unknown');
     _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
-    getCurrentVersion();
-    checkLatestVersion();
-
   }
   @override
   void dispose() {
@@ -75,7 +65,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       {
         //update success
         _animationController.stop();
-        _timer.cancel();
         _step = 1.0;
         setState(() {
         });
@@ -83,29 +72,18 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         Wakelock.disable();
         _connectDevice();
       }
-    else if(res['Firmware']!=null )
-      {
-        _currentVersion = res['Firmware'];
-        print('version check = ' + _version + ':' + _currentVersion + " = " + _version.compareTo(_currentVersion).toString());
-        if(res['Box battery']!=null)
-          {
-            _peerVersion = res['Box battery'];
-            print('peer version check = ' + _version + ':' + _peerVersion + " = " + _version.compareTo(_peerVersion).toString());
-          }
-      }
     else if(res['progress']!=null )
     {
-      _animationController.value = (0.02+ (double.parse(res['progress'])*0.78)/100);
+      _animationController.value = (0.05+ (double.parse(res['progress'])*0.65)/100);
       print('progress _step = ' + _step.toString() + ' -- ' + res['progress']);
-      if(_animationController.value > 0.795)
+      if(_animationController.value > 0.695)
         _animationController.forward();
     }
+    else if(res['Firmware']!=null ){}
     else{
       _step = 0.0;
       _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_Update');
       _animationController.stop();
-      _timer.cancel();
-      _countdownTime = 0;
       _step = 0.0;
       setState(() {});
       _isUpdating =false;
@@ -118,35 +96,15 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     print("_UpdatePageState _onError _result ---->"+ error.toString());
   }
 
-  void checkLatestVersion() {
-    Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/fm6840_release.json", (data) {
-      if (data != null) {
-        final body = json.decode(data.toString());
-        map = new Map<String, String>.from(body);
-        _version = map['version'];
-        _url = map['url'];
-        print('url = ' + _url);
-        print('version check = ' + _version + ':' + _currentVersion + " = " + _version.compareTo(_currentVersion).toString());
-        setState(() {
-        });
-      }
-    });
-  }
-  void getCurrentVersion()
-  {
-    platform.invokeMethod('native_get_firmware_version');
-  }
-
   Future<Null> _connectDevice() async {
     bool delete = await _showConnectBtConfirmDialog();
     if (delete == null) {
       print("NO");
-      exit(0);
+      //exit(0);
     } else {
       print("Yes");
-      platform.invokeMethod('native_go_to_setting');
-      exit(0);
+      //platform.invokeMethod('native_go_to_setting');
+      //exit(0);
     }
     bluetoothService.instance.finishUpdate();
   }
@@ -179,28 +137,13 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     //_animationController.forward();
     Fluttertoast.cancel();
     Fluttertoast.showToast(
-        msg: 'Firmware is up to date!',
+        msg: MyLocalizations.of(Global.context).getText('firmware_updated'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 24.0,
-    );
-  }
-
-  void _noVersion(){
-    //_step = 0.0;
-    //_animationController.forward();
-    Fluttertoast.cancel();
-    Fluttertoast.showToast(
-      msg: 'Can not get current version',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 24.0,
     );
   }
 
@@ -213,10 +156,10 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           title: Text(MyLocalizations.of(context).getText('Done')),
           content: Text(MyLocalizations.of(context).getText('update_ok')),
           actions: <Widget>[
-            CupertinoDialogAction(
+            /*CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('No')),
-              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
-            ),
+              onPressed: () => Navigator.of(context).pop(),
+                         ),*/
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('OK')),
               onPressed: () {
@@ -236,17 +179,16 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
       context: context,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: Text(MyLocalizations.of(context).getText('Warning')),
+          title: Text(MyLocalizations.of(Global.context).getText('UPGRADE'), style: Global.titleTextStyle1),/*Text(MyLocalizations.of(context).getText('Warning')),*/
           content: Text(MyLocalizations.of(context).getText('Update_confirm')),
           actions: <Widget>[
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('Cancel')),
-              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+              onPressed: () => Navigator.of(context).pop(),
             ),
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('Update')),
               onPressed: () {
-                //关闭对话框并返回true
                 Navigator.of(context).pop(true);
               },
             ),
@@ -254,18 +196,6 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
         );
       },
     );
-  }
-
-  void startCountdownTimer() {
-    const oneSec = const Duration(milliseconds: 500);
-
-    var callback = (timer) => {
-      setState(() {
-          _countdownTime = _countdownTime + 1;
-      })
-    };
-
-    _timer = Timer.periodic(oneSec, callback);
   }
 
   var _stack;
@@ -278,35 +208,33 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           height: Global.updateProcessHeight,
           width: Global.updateProcessWidth,
           child: RotatedBox(
-              quarterTurns: 3, //旋转90度(1/4圈)
+              quarterTurns: 3,
               child: new CircularProgressIndicator(
-                backgroundColor: Colors.white70,
+                backgroundColor: Color.fromARGB(255, 48, 48, 48),
+                strokeWidth: 8.0,
                 value: _step,
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.red),
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blueAccent),
               )
           ),
         ),
         Container(
-            height: Global.updateImgHeight,
-            width: Global.updateImgWidth,
-            child:  (_countdownTime%2 == 0)? Image.asset(
-            'assets/images/linkflow.png', height: Global.updateImgHeight,
-            width: Global.updateImgWidth) : Image.asset(
-                'assets/images/palovue_on.png', height: Global.updateImgHeight,
-                width: Global.updateImgWidth),
+            height: Global.updateImgHeight/2,
+            width: Global.updateImgWidth/2,
+            child:  Image.asset(
+            'assets/images/update.png', height: Global.updateImgHeight,
+            width: Global.updateImgWidth),
         )
       ],
     );
   }
 
   void _tryUpgrade(){
-    if(_url.contains('http')){
-      platform.invokeMethod('native_upgrade', _url);
+    if(bluetoothService.instance.updateUrl.contains('http')){
+      platform.invokeMethod('native_upgrade', bluetoothService.instance.updateUrl);
       _step = 0.0;
       _updateInfo = MyLocalizations.of(Global.context).getText('Firmware_updating');
       _isUpdating = true;
       _animationController.forward();
-      startCountdownTimer();
       Wakelock.enable();
     }
   }
@@ -326,30 +254,38 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
                 MyLocalizations.of(Global.context).getText('latest_firmware'),
                 style: Global.contentTextStyle,
               ),
-              Text(
-                _version,
-                style: Global.contentTextStyle,
-              ),
-            ],
-          ),
-
-          Row(
-            children: <Widget>[
-              Text(
-                MyLocalizations.of(Global.context).getText('current_firmware'),
-                style: Global.contentTextStyle,
-              ),
-              Text(
-                _currentVersion,
-                style: Global.contentTextStyle,
-              ),
+              Selector(builder:  (BuildContext context, String data, Widget child) {
+                print('InfoPageState rebuild............'+data);
+                return Text(data, style: Global.contentTextStyle/*TextStyle(color: Colors.white, fontSize: 20)*/);
+                }, selector: (BuildContext context, bluetoothService btService) {
+                  if(btService.version.contains('unknown'))
+                    return MyLocalizations.of(Global.context).getText('unknown');
+                  return btService.version;
+                }
+              )
             ],
           ),
           Container(
-            height: Global.updateBodyHeight,
-            child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+            alignment: Alignment.bottomCenter,
+            height: Global.updateIconHeight/2,
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            height: Global.updateIconHeight,
+            child: _isUpdating? Text(
+              (_step*100).toStringAsFixed(2)+'%',
+              style: Global.contentTextStyle,
+            ) : Text(' '),
           ),
 
+          Container(
+            height: Global.updateBodyHeight*0.7,
+            child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            height: Global.updateIconHeight,
+          ),
           SizedBox(
             //width: 50,
             height: Global.updateIconHeight,
@@ -361,9 +297,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
               child: Text(_updateInfo, style: Global.floatHzTextStyle),
               shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
               onPressed: () {
-                if(!_currentVersion.contains('1.2'))
-                  _noVersion();
-                else if(!_isUpdating && _currentVersion.compareTo(_version)!=0)
+                if(!_isUpdating && bluetoothService.instance.needUpdate())
                   _updateConfirm();
                 else if (!_isUpdating)
                   _noUpdate();

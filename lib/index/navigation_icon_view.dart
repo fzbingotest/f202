@@ -9,10 +9,10 @@ class NavigationIconView {
 
   // 类似于 java 中的构造方法
   // 创建 NavigationIconView 需要传入三个参数， icon 图标，title 标题， TickerProvider
-  NavigationIconView({Widget icon, Widget title, TickerProvider vsync, Widget activeIcon}):
+  NavigationIconView({Widget icon, String label, TickerProvider vsync, Widget activeIcon}):
         item = new BottomNavigationBarItem(
           icon: icon,
-          title: title,
+          label: label,
           activeIcon: activeIcon,
         ),
         controller = new AnimationController(

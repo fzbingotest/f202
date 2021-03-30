@@ -15,8 +15,8 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Linkflow"
-        android:icon="@mipmap/icon"
+        android:label="PALOVUE UPGRADE"
+        android:icon="@mipmap/ic_upgrade"
         tools:replace="android:label" >
         <activity
             android:name=".MainActivity"

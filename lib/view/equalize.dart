@@ -21,11 +21,14 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   final List<double> _rockList     = [1,2,3,4,-1,-2,1];
   final List<double> _seztoList   = [0,0,0,0,0,0,0];
   final List<double> _electronicList = [-1,3,3,1,2,3,2];
-  final List<double> _classicList    = [-1,2,2,2,2,3,1];
+  //final List<double> _classicList    = [-1,2,2,2,2,3,1];
+  final List<double> _classicList    = [1,2,2,2,2,2,1];
   final List<double> _femaleList    = [0,0,1,1,2,1,3];
   //final List<double> _monitorList   = [-1,-3,2,1,1,0,0];
-  final List<double> _jazzList   = [-3,-1,0,1,0,-1,-3];
-  final List<double> _maleList   = [2,3,3,-2,-3,-4,-3];
+  //final List<double> _jazzList   = [-3,-1,0,1,0,-1,-3];
+  final List<double> _jazzList   = [-3,-1,1,1,0,-1,-1];
+  //final List<double> _maleList   = [2,3,3,-2,-3,-4,-3];
+  final List<double> _maleList   = [2,3,2,0,-1,-1,-2];
   final List<double> _customizeList   = [0,0,0,0,0,0,0];
   static const String CHANNEL_NAME="palovue.fm6840/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
@@ -36,12 +39,12 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
     _eqList =  <StatefulWidget>[
       new EqualizeView(type: 'Normal', listGain: _customizeList),
       new EqualizeView(type: 'Jazz', listGain: _jazzList),
-      new EqualizeView(type: 'Sezto', listGain: _seztoList),
       new EqualizeView(type: 'Electronic', listGain: _electronicList),
       new EqualizeView(type: 'Classical', listGain: _classicList),
       new EqualizeView(type: 'Female Vocals', listGain: _femaleList),
       new EqualizeView(type: 'Rock', listGain: _rockList),
       new EqualizeView(type: 'Male Vocals', listGain: _maleList),
+      new EqualizeView(type: 'Sezto', listGain: _seztoList),
 //      new EqualizeView(type: 'Customize', listGain: _customizeList),
     ];
   }
@@ -100,20 +103,36 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   }
 
   void onTabChange(){
-    print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString());
-    if(_tabController.index == _preset)
+    print('_tabController = '+ _tabController.toString() + ', index = ' +  _tabController.index.toString() + ', _preset = ' +  _preset.toString());
+    if(_tabController.index == _preset) {
+      if (_preset == 7) {
+        _getCustomEq();
+      }
       return;
+    }
+    if(_preset ==7)
+      setState(() {
+      });
     _preset = _tabController.index;
     //_tabController.index  = _preset;
-    //TODO set preset
     if(_preset == 0)
       _setPresetActive(false);
     else {
       if(!_presetActive)
         _setPresetActive(true);
-      _setPreset(_tabController.index-1);
-      if(_preset == 2){
-        _getCustomEq();
+      //_setPreset(_tabController.index-1);
+      print('_tabController = '+ _tabController.toString() + ', _preset = ' +  _preset.toString());
+
+      if(_preset == 7){
+        _setPreset(0);
+        _setPreset(1);
+      }
+      else if(_preset == 1)
+      {
+        _setPreset(0);
+      }
+      else {
+        _setPreset(_preset);
       }
     }
   }
@@ -158,15 +177,24 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   }
 
   bool _keyValid(int key) => (key>=-12 && key<=12);
+  int _bank2UI(int bank)
+  {
+    if(bank == 1)
+      return 7;
+    else if(bank == 0)
+      return 1;
+    else
+      return bank;
+  }
 
   void _onEvent(Object event) {
     print("EQ _onEvent _result ---->"+ event.toString());
     Map<String, int> res = new Map<String, int>.from(event);
     if(res['key'] == 0)
     {
-      _preset = res['bank'];
+      _preset = _bank2UI(res['bank']);
       if(_presetActive)
-      _tabController.animateTo(_preset+1);
+      _tabController.animateTo(_preset);
       setState(() {});
     }
     else if(res['key'] == 1)
@@ -187,8 +215,14 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
       for(int i= 0; i<7; i++)
       {
         key1 = key+i.toString();
-        if(res[key1] != null && _keyValid(res[key1]))
+        if(res[key1] != null && _keyValid(res[key1])) {
           _seztoList[i] = res[key1].toDouble();
+          if(_seztoList[i] < Global.eqMin)
+            _seztoList[i] = Global.eqMin;
+          else if (_seztoList[i] > Global.eqMax)
+            _seztoList[i] = Global.eqMax;
+          setCustomEq(i, res[key1].toInt());
+        }
       }
       setState(() {});
     }
@@ -202,7 +236,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   {
     return Tab(
         child: Container(
-        width: Global.tabImgWidth,//ScreenUtil().setWidth(350),
+        //width: Global.tabImgWidth,//ScreenUtil().setWidth(350),
         height: Global.tabImgHeight,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -210,7 +244,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
         ),
         child: Align(
           alignment: Alignment.center,
-          child: Text(title, style:Global.contentTextStyle),
+          child: Text(title, style:Global.eqHzTextStyle),
         ),
       ),
     );
@@ -219,6 +253,7 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     buildEqList();
+    print('EQ rebuild ' + _tabController.index.toString());
     return new Container(
       padding: EdgeInsets.all(Global.eqBodyPadding),
       child: Center(
@@ -227,22 +262,25 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
             Container(
               height: Global.tabHeight,
               child: TabBar(
-                unselectedLabelColor: Colors.grey,
+                /*unselectedLabelColor: Colors.red,*/
                 //indicatorSize: TabBarIndicatorSize.label,
-                indicatorPadding: EdgeInsets.only(left: 30, right: 30),
+                /*labelPadding: EdgeInsets.only(left: 20, right: 20, bottom: 80),*/
+                  indicatorSize: TabBarIndicatorSize.tab,
+                /*labelColor:Colors.blueGrey,*/
+                //indicatorColor:Colors.blueGrey,
                 indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                   color: Colors.blueGrey),
                 isScrollable:true,
                 tabs: <Widget>[
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Normal')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Jazz')),
-                  _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Electronic')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Classical')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Female_Vocals')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Rock')),
                   _buildTabItem(MyLocalizations.of(Global.context).getText('Male_Vocals')),
+                  _buildTabItem(MyLocalizations.of(Global.context).getText('Sezto')),
                   //_buildTabItem("Customize"),
                 ],
                 controller: _tabController,  // 记得要带上tabController
@@ -263,6 +301,10 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
                 controller: _tabController,
                 children: _eqList,
               ),
+            ),
+            Container(
+              width: Global.appWidth - Global.eqBodyPadding*2,
+              child: (_tabController.index==7) ? Text(MyLocalizations.of(Global.context).getText('eqHint'), style: Global.eqHintTextStyle, textAlign: TextAlign.left,):null,
             ),
           ],
         ),
@@ -294,17 +336,18 @@ class _EqualizeViewState extends State<EqualizeView> {
                 SizedBox(child: Text(_listTitle[f], style: Global.eqHzTextStyle,), width: Global.eqItemTitleWidth),
                   SizedBox( width: Global.columnPadding ),
                   Expanded(
-                    child: CupertinoSlider(value: widget.listGain[f],min: -12,max: 12,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
+                    child: CupertinoSlider(value: widget.listGain[f],min: Global.eqMin,max: Global.eqMax,thumbColor: Colors.red,activeColor: Colors.grey, divisions: 24,
                         onChanged: (double value) {
                           if(widget.type.contains('Sezto')) {
-                            widget.listGain[f] = value;
+                            int temp = value.round();
+                            widget.listGain[f] = temp.toDouble();
                             setState(() {
                             });
                           }
                         },
                         onChangeEnd: (double newValue) {
                           if(widget.type.contains('Sezto')) {
-                            _EqualizePageState.setCustomEq(f, newValue.toInt());
+                            _EqualizePageState.setCustomEq(f, newValue.round());
                             print('Ended change on $newValue');
                           }
 
@@ -331,7 +374,7 @@ class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTicke
   TabController _tabController;
   List<Widget> _eqList;
   Color _resetColor = Colors.white;
-  final List<double> _fenderList     = [7,3,2,2,1,4,11];
+  final List<double> _palovueList     = [7,3,2,2,1,4,11];
   final List<double> _seztoList   = [4,0,4,8,8,4,7];
   final List<double> _electronicList = [9,3,5,-6,-4,5,3];
   final List<double> _classicList    = [-6,-1,-4,2,-3,0,9];
@@ -343,7 +386,7 @@ class _EqualizePageStateGuide extends State<EqualizePageGuide>  with SingleTicke
   {
     _eqList =  <StatefulWidget>[
       new EqualizeView(type: 'Normal', listGain: _customizeList),
-      new EqualizeView(type: 'Fender', listGain: _fenderList),
+      new EqualizeView(type: 'Palovue', listGain: _palovueList),
       new EqualizeView(type: 'Sezto', listGain: _seztoList),
       new EqualizeView(type: 'Electronic', listGain: _electronicList),
       new EqualizeView(type: 'Classical', listGain: _classicList),
