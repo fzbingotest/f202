@@ -1347,6 +1347,8 @@ public class MainActivity extends FlutterActivity
     public void onGetBatteryLevel(int level) {
         Map<String, String> map = new HashMap<>();
         level = getBatteryLevel(mDeviceHeadset);
+        if(level == -1)
+            level = 100;
         String text = ""+level;
         map.put("Battery", text );
         Log.i(TAG, " onGetBatteryLevel " +  map.toString());
@@ -1544,7 +1546,7 @@ public class MainActivity extends FlutterActivity
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
                     Log.i(TAG, ">>>done");
-                    //下载完成安装APK
+                    //
                     //downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + File.separator + versionName;
                     //installAPK(new File(downloadPath));
                     mService.enableUpgrade(true);
@@ -1553,6 +1555,10 @@ public class MainActivity extends FlutterActivity
                 case DownloadManager.STATUS_FAILED:
                     int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
                     Log.i(TAG, ">>>failed = " + reason);
+                    Map<String, String> map = new HashMap<>();
+                    map.put("status", "bin file download error" );
+                    if(updateEventSink!= null)
+                        updateEventSink.success(map);
                     break;
             }
         }

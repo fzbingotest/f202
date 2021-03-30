@@ -20,7 +20,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:icon="@mipmap/icon"
-        android:label="Palovue iSound"
+        android:label="PALOVUE TWS"
         tools:replace="android:label">
         <provider
             android:name="com.palovue.iSound.tourSliceProvider"

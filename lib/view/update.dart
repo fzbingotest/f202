@@ -88,6 +88,8 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
             _peerVersion = res['Box battery'];
             print('peer version check = ' + _version + ':' + _peerVersion + " = " + _version.compareTo(_peerVersion).toString());
           }
+        setState(() {
+        });
       }
     else if(res['progress']!=null )
     {
@@ -114,7 +116,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json", (data) {
+    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/palovue/release/palovue_tws_ota_release.json", (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);
@@ -194,12 +196,12 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           actions: <Widget>[
             /*CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('No')),
-              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
-            ),*/
+              onPressed: () => Navigator.of(context).pop(),
+                          ),*/
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('OK')),
               onPressed: () {
-                //关闭对话框并返回true
+
                 Navigator.of(context).pop(true);
               },
             ),
@@ -294,12 +296,11 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           actions: <Widget>[
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('Cancel')),
-              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+              onPressed: () => Navigator.of(context).pop(),
             ),
             CupertinoDialogAction(
               child: Text(MyLocalizations.of(context).getText('Update')),
               onPressed: () {
-                //关闭对话框并返回true
                 Navigator.of(context).pop(true);
               },
             ),
@@ -319,7 +320,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           height: Global.updateProcessHeight,
           width: Global.updateProcessWidth,
           child: RotatedBox(
-              quarterTurns: 3, //旋转90度(1/4圈)
+              quarterTurns: 3, //旋转90�?1/4�?
               child: new CircularProgressIndicator(
                 backgroundColor: Color.fromARGB(255, 48, 48, 48),
                 strokeWidth: 8.0,

@@ -153,9 +153,9 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
           activeIcon: new ImageIcon(AssetImage('assets/images/tab_enhance.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
           title: new Text(MyLocalizations.of(context).getText('DRIVE')),
           vsync: this), // vsync*/
-      new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_eq.png'), size: Global.navigationIconWidth, color: Colors.grey),
+     /* new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_eq.png'), size: Global.navigationIconWidth, color: Colors.grey),
            activeIcon: new ImageIcon(AssetImage('assets/images/tab_eq.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
-          label: MyLocalizations.of(context).getText('EQ'), vsync: this),
+          label: MyLocalizations.of(context).getText('EQ'), vsync: this),*/
       new NavigationIconView(icon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.grey),
           activeIcon: new ImageIcon(AssetImage('assets/images/tab_update.png'), size: Global.navigationIconWidth, color: Colors.greenAccent),
           label: MyLocalizations.of(context).getText('UPDATE'), vsync: this),
@@ -175,7 +175,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin, WidgetsBin
     //
     _pageList = <StatefulWidget>[
       /*new ConfigsPage(),*/
-      new EqualizePage(),
+      /*new EqualizePage(),*/
       new UpdatePage(),
       new SettingPage(),
       new InfoPage(),

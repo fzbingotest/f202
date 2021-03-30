@@ -92,7 +92,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
                 /*child: SizedBox(
                   width: Global.appWidth, height: Global.appBodyHeight,*/
                 child: Container(
-                    padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding*0.8, Global.bodyPadding, 0),
+                    padding: EdgeInsets.fromLTRB(Global.bodyPadding, Global.bodyPadding*0.5, Global.bodyPadding, 0),
                   height: Global.guideBodyHeight,
                   child:  _getPage(),
                 ),
@@ -275,8 +275,8 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
                 children: <Widget>[
                   Column(
                     children: <Widget>[
-                      SizedBox( height : Global.bottomLogoHeight*1.2,  width: Global.appWidth/4/*- Global.bodyPadding/2*/),
-                      SizedBox( height : Global.bottomLogoHeight*0.5 ,  width: Global.appWidth/4/*- Global.bodyPadding/2*/,
+                      SizedBox( height : Global.bottomLogoHeight*1.4,  width: Global.appWidth/4/*- Global.bodyPadding/2*/),
+                      SizedBox( height : Global.bottomLogoHeight*0.3 ,  width: Global.appWidth/4/*- Global.bodyPadding/2*/,
                       child: Text(MyLocalizations.of(Global.context).getText('Button'), style: Global.guideButtonTextStyle,textAlign: TextAlign.right,),
                       ),
                       SizedBox( height : Global.bottomLogoHeight*0.3 ,  width: Global.appWidth/4/*- Global.bodyPadding/2*/,
