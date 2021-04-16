@@ -26,11 +26,15 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
   double _step = 0.00;
   bool _isUpdating = false;
   Color _buttonColor = Colors.white;
+  int  _clickCount = 0;
+  bool _isDebug = false;
   //Animation<double> _animation;
   AnimationController _animationController;
   static const String CHANNEL_NAME="fender.Tour/call_native";
   static const platform=const MethodChannel(CHANNEL_NAME);
   static const EventChannel eventChannel =  const EventChannel('fender.Tour/update_event_native');
+  static const String ReleaseURL = "https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json";
+  static const String DebugURL = "https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/debug/f202_ota_debug.json";
   StreamSubscription _subscription;
 
   @override
@@ -114,7 +118,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
   void checkLatestVersion() {
     Map<String, String> map;
-    HttpController.get("https://foxdaota.s3.cn-north-1.amazonaws.com.cn/ota/fender/f202/release/f202_ota_release.json", (data) {
+    HttpController.get(_isDebug? DebugURL: ReleaseURL, (data) {
       if (data != null) {
         final body = json.decode(data.toString());
         map = new Map<String, String>.from(body);
@@ -349,6 +353,18 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
     }
   }
 
+  void _logoClick(){
+    _clickCount++;
+    print('logo click =' + _clickCount.toString());
+    if(_clickCount == 2)
+      {
+        _clickCount = 0;
+        _isDebug = !_isDebug;
+        checkLatestVersion();
+        setState(() {});
+      }
+  }
+
   @override
   Widget build(BuildContext context) {
     //print("update" + context.toString());
@@ -361,7 +377,7 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
           Row(
               children: <Widget>[
               Text(
-                MyLocalizations.of(Global.context).getText('latest_firmware'),
+                _isDebug? 'Debug Firmware: ': MyLocalizations.of(Global.context).getText('latest_firmware'),
                 style: Global.contentTextStyle,
               ),
               Text(
@@ -373,7 +389,10 @@ class _UpdatePageState extends State<UpdatePage> with SingleTickerProviderStateM
 
           Container(
             height: Global.updateBodyHeight,
-            child: _stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+            child: GestureDetector(
+              child:_stack,//Image.asset('assets/images/update.png' , height: ScreenUtil().setHeight(900), width: ScreenUtil().setWidth(615)),
+              onTap: _logoClick,
+            ),
           ),
 
           SizedBox(

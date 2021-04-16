@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Tour/utils/const.dart';
 import 'package:Tour/utils/myLocalizations.dart';
+import 'package:Tour/utils/myTabs.dart';
 
 
 class EqualizePage extends StatefulWidget {
@@ -260,12 +261,12 @@ class _EqualizePageState extends State<EqualizePage>  with SingleTickerProviderS
         child:  Column(
           children: <Widget>[
             Container(
-              height: Global.tabHeight,
-              child: TabBar(
+              height: Global.tabHeight*1.2,
+              child: myTabBar(
                 unselectedLabelColor: Colors.grey,
                 //indicatorSize: TabBarIndicatorSize.label,
                 indicatorPadding: EdgeInsets.only(left: 30, right: 30),
-                indicator: BoxDecoration(
+                indicator: MyBoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.blueGrey),
                 isScrollable:true,

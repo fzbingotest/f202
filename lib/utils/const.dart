@@ -8,7 +8,7 @@ class Global {
   static int firstRun;
   static bool _isScreenInit = false;
   static BuildContext appContext;
-  static int guideSteps = 7;
+  static int guideSteps = 6;
 
   // 是否为release版
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
