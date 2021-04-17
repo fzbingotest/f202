@@ -175,7 +175,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             ),
            ],
         );
-      case 2:
+      case 8:
         return Column(
           children: <Widget>[
             Container(
@@ -207,7 +207,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             ),*/
           ],
         );
-      case 3:
+      case 2:
         return Column(
           children: <Widget>[
             Container(
@@ -227,7 +227,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
 
           ],
         );
-      case 4:
+      case 3:
         return Column(
           children: <Widget>[
             Container(
@@ -261,7 +261,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             ),
           ],
         );
-      case 5:
+      case 4:
         return Column(
           children: <Widget>[
             Container(
@@ -312,7 +312,7 @@ class _GuideState extends State<Guide> with TickerProviderStateMixin, WidgetsBin
             ),
           ],
         );
-      case 6:
+      case 5:
         return Column(
           children: <Widget>[
             Container(
